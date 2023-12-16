@@ -59,6 +59,26 @@ end
 
 This JSON is not currently parsed by argument parser (`arghandle` function), it is just a product of our imagination which illustrates meaning of all option definitions.
 
+Because option values often have some constraints simplified syntax has been developed to explain such restrictions quicker. So the example above can be rewritten as:
+
+```fish
+# Types should be specified for all options, to guarantee all data
+# passed in a book search function has the right type. Also note ':'
+# after '--description' option, it signifies that this simplified syntax
+# is expected to be used. Without it code will not work.
+set __search_for_book_option_specification --name 'search_for_book' --description 'Search for a book in an online store' : \
+    str a/author 'A book author' \
+    str b/book 'A book name'
+
+function search_for_book  
+    eval (arghandle $__search_for_book_option_specification)
+
+    # Some stuff to download book we don't care about now.
+end
+```
+
+While using this syntax it's recommended to write each option definition on a separate line.
+
 ## Syntax
 
 ```fish
