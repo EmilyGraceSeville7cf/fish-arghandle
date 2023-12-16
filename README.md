@@ -118,3 +118,11 @@ Notes:
 - `-t`|`--type` is used to just tell valid value type for an option, while `-R`|`--range` and `-e`|`--enum` do more: they restrict value to a certain subset too. By default `-t`|`--type` assumed to be `str` unless explicitly specified or one of the following options are used:
   - `-R`|`--range` - tells that `-t`|`--type` is implicitly `int` or `float`
   - `-e`|`--enum` - tells `-t`|`--type` implicitly  
+
+## Useful functions
+
+To quicker discover current `arghandle` settings you can use these functions:
+
+- `arghandle_colors`: Print colors used by `arghandle` function
+- `arghandle_suffixes`: Print suffixes used by `arghandle` function
+- `arghandle_settings`: Print colors and suffixes used by `arghandle` function
