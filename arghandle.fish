@@ -11,23 +11,23 @@ set --query arghandle_option_min_suffix || set arghandle_option_min_suffix min
 set --query arghandle_option_max_suffix || set arghandle_option_max_suffix max
 
 
-function is_int --description 'Checks whether a value is an int' --argument-names value
+function is_int --argument-names value --description 'Checks whether a value is an int'
     string match --regex --quiet -- '^-?\d+$' "$value"
 end
 
-function is_float --description 'Checks whether a value is a float' --argument-names value
+function is_float --argument-names value --description 'Checks whether a value is a float'
     string match --regex --quiet -- '^-?\d+\.\d+$' "$value"
 end
 
-function is_bool --description 'Checks whether a value is a bool' --argument-names value
+function is_bool --argument-names value --description 'Checks whether a value is a bool'
     string match --regex --quiet -- '^(true|false)$' "$value"
 end
 
-function is_str --description 'Checks whether a value is a str' --argument-names value
+function is_str --argument-names value --description 'Checks whether a value is a str'
     not is_int "$value" && not is_float "$value" && not is_bool "$value"
 end
 
-function is_int_range --description 'Checks whether a value is an int range' --argument-names value
+function is_int_range --argument-names value --description 'Checks whether a value is an int range'
     string match --regex --quiet -- '^(-?\d+\.\.|\.\.-?\d+|-?\d+\.\.-?\d+)$' "$value" || return
     set borders (string split -- .. "$value")
     if test -n "$borders[1]" && test -n "$borders[2]"
@@ -35,7 +35,7 @@ function is_int_range --description 'Checks whether a value is an int range' --a
     end
 end
 
-function is_float_range --description 'Checks whether a value is a float range' --argument-names value
+function is_float_range --argument-names value --description 'Checks whether a value is a float range'
     string match --regex --quiet -- '^(-?\d+\.\d+\.\.|\.\.-?\d+\.\d+|-?\d+\.\d+\.\.-?\d+\.\d+)$' "$value" || return
     set borders (string split -- .. "$value")
     if test -n "$borders[1]" && test -n "$borders[2]"
@@ -43,25 +43,25 @@ function is_float_range --description 'Checks whether a value is a float range' 
     end
 end
 
-function is_range --description 'Checks whether a value is a range' --argument-names value
+function is_range --argument-names value --description 'Checks whether a value is a range'
     is_int_range "$value" || is_float_range "$value"
 end
 
-function range_start --description 'Get a lowest range value if it exists' --argument-names value
+function range_start --argument-names value --description 'Get a lowest range value if it exists'
     is_range "$value" && string match --regex -- '^-?\d+(?:\.\d+)?' "$value"
 end
 
-function range_end --description 'Get a highest range value if it exists' --argument-names value
+function range_end --argument-names value --description 'Get a highest range value if it exists'
     is_range "$value" && string match --regex -- '-?\d+(?:\.\d+)?$' "$value"
 end
 
-function is_enum --description 'Checks whether a value is an enum' --argument-names value
+function is_enum --argument-names value --description 'Checks whether a value is an enum'
     string match --regex --quiet -- '^[^, ]+(,[^, ]+)*$' "$value" || return
     set --local items (string split -- , "$value")
     test (count $items) -eq (count (echo "$items" | string split -- " " | sort --unique))
 end
 
-function is_int_enum --description 'Checks whether a value is an int enum' --argument-names value
+function is_int_enum --argument-names value --description 'Checks whether a value is an int enum'
     is_enum "$value" || return
     set --local items (string split -- , "$value")
     for item in $items
@@ -69,7 +69,7 @@ function is_int_enum --description 'Checks whether a value is an int enum' --arg
     end
 end
 
-function is_float_enum --description 'Checks whether a value is a float enum' --argument-names value
+function is_float_enum --argument-names value --description 'Checks whether a value is a float enum'
     is_enum "$value" || return
     set --local items (string split -- , "$value")
     for item in $items
@@ -77,7 +77,7 @@ function is_float_enum --description 'Checks whether a value is a float enum' --
     end
 end
 
-function is_bool_enum --description 'Checks whether a value is a bool enum' --argument-names value
+function is_bool_enum --argument-names value --description 'Checks whether a value is a bool enum'
     is_enum "$value" || return
     set --local items (string split -- , "$value")
     for item in $items
@@ -85,37 +85,37 @@ function is_bool_enum --description 'Checks whether a value is a bool enum' --ar
     end
 end
 
-function is_str_enum --description 'Checks whether a value is a str enum' --argument-names value
+function is_str_enum --argument-names value --description 'Checks whether a value is a str enum'
     is_enum "$value" || return
     not is_int_enum "$value" && not is_float_enum "$value" && not is_bool_enum "$value"
 end
 
-function is_type --description 'Checks whether a value is a type' --argument-names value
+function is_type --argument-names value --description 'Checks whether a value is a type'
     string match --regex --quiet -- '^(int|float|bool|str)$' "$value"
 end
 
-function is_short_option --description 'Checks whether a value is a short option' --argument-names value
+function is_short_option --argument-names value --description 'Checks whether a value is a short option'
     string match --regex --quiet -- '^-[^- ]$' "$value"
 end
 
-function is_long_option --description 'Checks whether a value is a long option' --argument-names value
+function is_long_option --argument-names value --description 'Checks whether a value is a long option'
     string match --regex --quiet -- '^--[^- ]{2,}(-[^- ]+)*$' "$value"
 end
 
-function is_option_pair --description 'Checks whether a value is a short/long option pair' --argument-names value
+function is_option_pair --argument-names value --description 'Checks whether a value is a short/long option pair'
     set --local items (string split -- / "$value")
     is_short_option "-$items[1]" && is_long_option "--$items[2]"
 end
 
-function option_pair_short --description 'Get a short option from a pair' --argument-names value
+function option_pair_short --argument-names value --description 'Get a short option from a pair'
     is_option_pair "$value" && string replace --regex -- '^(.)/.*$' '$1' "$value"
 end
 
-function option_pair_long --description 'Get a long option from a pair' --argument-names value
+function option_pair_long --argument-names value --description 'Get a long option from a pair'
     is_option_pair "$value" && string replace --regex -- '^./(.*)$' '$1' "$value"
 end
 
-function inferred_type_from_expression --description 'Get an inferred type of a value' --argument-names value
+function inferred_type_from_expression --argument-names value --description 'Get an inferred type of a value'
     set --local inferred_type str
     if is_int_range "$value"
         set inferred_type int
@@ -131,7 +131,7 @@ function inferred_type_from_expression --description 'Get an inferred type of a 
     echo "$inferred_type"
 end
 
-function inferred_type --description 'Get an inferred type of a value' --argument-names value
+function inferred_type --argument-names value --description 'Get an inferred type of a value'
     if is_type "$value"
         echo "$value"
         return
@@ -140,7 +140,7 @@ function inferred_type --description 'Get an inferred type of a value' --argumen
     inferred_type_from_expression "$value"
 end
 
-function inferred_type_from_contraints --description 'Get an inferred option type from --range or --enum options' --argument-names range enum
+function inferred_type_from_contraints --argument-names range enum --description 'Get an inferred option type from --range or --enum options'
     set --local inferred_type str
     if test -n "$range"
         if is_int_range "$range"
