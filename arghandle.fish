@@ -474,6 +474,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
     end
 
     set --local option_index 1
+    set --local option_default_specified
 
     while set --query "argv[$index]"
         if test "$argv[$index]" != "["
@@ -526,8 +527,10 @@ function arghandle --description 'Parses arguments and provides automatically ge
                     set options_validator[$option_index] "$argument"
                 case -d
                     set options_default[$option_index] "$argument"
+                    set option_default_specified true
                 case --default
                     set options_default[$option_index] "$argument"
+                    set option_default_specified true
                 case '*'
                     __arghandle_incorrect_option_in_definition_error "$option" "$option_index"
                     return 1
@@ -618,17 +621,17 @@ function arghandle --description 'Parses arguments and provides automatically ge
 
         set option_type "$options_type[$index]"
         set --local option_required "$options_required[$index]"
-        set --local option_default $options_default[$index]
+        set --local option_default "$options_default[$index]"
 
-        if test -n "$option_required" && set --query option_default
+        if test -n "$option_required" && test -n "$option_default_specified"
             __arghandle_in_definition_error "either '--required' or '--default' options" "both options" "$index"
             return 1
         end
 
-        if set --query option_default
+        if test -n "$option_default_specified"
             set --local inferred_type (inferred_type_from_expression "$option_default")
             if test "$option_type" != "$inferred_type"
-                __arghandle_in_definition_error "'--default' type equal to '$inferred_type' type" "--type = $option_type and --default type = $inferred_type" "$index"
+                __arghandle_in_definition_error "'--default' type equal to '$option_type' type" "--type = $option_type and --default type = $inferred_type" "$index"
                 return 1
             end
         end
