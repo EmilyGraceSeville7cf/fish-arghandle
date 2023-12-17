@@ -114,12 +114,7 @@ function option_pair_long --description 'Get a long option from a pair' --argume
     is_option_pair "$value" && string replace --regex -- '^./(.*)$' '$1' "$value"
 end
 
-function inferred_type --description 'Get an inferred type of a value' --argument-names value
-    if is_type "$value"
-        echo "$value"
-        return
-    end
-
+function inferred_type_from_expression --description 'Get an inferred type of a value' --argument-names value
     set --local inferred_type str
     if is_int_range "$value"
         set inferred_type int
@@ -135,6 +130,35 @@ function inferred_type --description 'Get an inferred type of a value' --argumen
     echo "$inferred_type"
 end
 
+function inferred_type --description 'Get an inferred type of a value' --argument-names value
+    if is_type "$value"
+        echo "$value"
+        return
+    end
+
+    inferred_type_from_expression "$value"
+end
+
+function inferred_type_from_contraints --description 'Get an inferred option type from --range or --enum options' --argument-names range enum
+    set --local inferred_type str
+    if test -n "$range"
+        if is_int_range "$range"
+            set inferred_type int
+        else if is_float_range "$range"
+            set inferred_type float
+        end
+    else if test -n "$enum"
+        if is_bool_enum "$enum"
+            set inferred_type bool
+        else if is_int_enum "$enum"
+            set inferred_type int
+        else if is_float_enum "$enum"
+            set inferred_type float
+        end
+    end
+
+    echo "$inferred_type"
+end
 
 function __arghandle_error --argument-names expected found
     if test -n "$found"
@@ -511,7 +535,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
 
             not string match --regex --quiet -- '^(-r|--required)$' "$option"
             set --local requires_argument "$status"
-            if test "$requires_argument" -eq 0 && test -z "$argument"
+            if test "$requires_argument" -eq 0 && not set --query argument
                 __arghandle_incorrect_option_empty_value_format_in_definition_error "$option" "$option_index"
                 return 1
             end
@@ -578,31 +602,37 @@ function arghandle --description 'Parses arguments and provides automatically ge
             return 1
         end
 
-        set --local inferred_type str
-        if test -n "$option_range"
-            if is_int_range "$option_range"
-                set inferred_type int
-            else if is_float_range "$option_range"
-                set inferred_type float
-            end
-        else if test -n "$option_enum"
-            if is_bool_enum "$option_enum"
-                set inferred_type bool
-            else if is_int_enum "$option_enum"
-                set inferred_type int
-            else if is_float_enum "$option_enum"
-                set inferred_type float
-            end
-        end
-
-        if test -n "$option_range" || test -n "$option_enum"
+        set --local inferred_type (inferred_type_from_contraints "$option_range" "$option_enum")
+        test -n "$option_range" || test -n "$option_enum"
+        set --local at_least_one_contrains_set "$status"
+        if test "$at_least_one_contrains_set" -eq 0
             if test -n "$option_type" && test "$option_type" != "$inferred_type"
                 __arghandle_in_definition_error "'--type' equal to '$inferred_type' type" "--type = $option_type and inferred type = $inferred_type" "$index"
                 return 1
             end
+
+            set options_type[$index] "$inferred_type"
+        else
+            test -z "$option_type" && set options_type[$index] str
         end
 
-        set options_type[$index] "$inferred_type"
+        set option_type "$options_type[$index]"
+        set --local option_required "$options_required[$index]"
+        set --local option_default $options_default[$index]
+
+        if test -n "$option_required" && set --query option_default
+            __arghandle_in_definition_error "either '--required' or '--default' options" "both options" "$index"
+            return 1
+        end
+
+        if set --query option_default
+            set --local inferred_type (inferred_type_from_expression "$option_default")
+            if test "$option_type" != "$inferred_type"
+                __arghandle_in_definition_error "'--default' type equal to '$inferred_type' type" "--type = $option_type and --default type = $inferred_type" "$index"
+                return 1
+            end
+        end
+
         set index (math $index + 1)
     end
 
