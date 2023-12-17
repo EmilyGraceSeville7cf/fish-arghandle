@@ -3,6 +3,7 @@
 set --query arghandle_title_color || set arghandle_title_color green
 set --query arghandle_option_color || set arghandle_option_color cyan
 set --query arghandle_option_mnemonic_color || set arghandle_option_mnemonic_color yellow
+set --query arghandle_option_default_color || set arghandle_option_default_color blue
 set --query arghandle_option_deprecation_notice_color || set arghandle_option_deprecation_notice_color red
 
 set --query arghandle_option_default_suffix || set arghandle_option_default_suffix default
@@ -247,6 +248,7 @@ function arghandle_colors --description 'Print colors used by arghandle'
     __arghandle_color "a title" arghandle_title_color
     __arghandle_color "an --option" arghandle_option_color
     __arghandle_color "an option [m]nemonic" arghandle_option_mnemonic_color
+    __arghandle_color "an option [d]efault" arghandle_option_default_color
     __arghandle_color "an option deprecation notice" arghandle_option_deprecation_notice_color
 end
 
@@ -290,9 +292,11 @@ end
 # Options are highlighted with $arghandle_option_color.
 # Mnemonics (square brackets with letters) are highlighted with $arghandle_option_mnemonic_color. They are used to explain
 #   what short options stand for.
-function __arghandle_option --argument-names short long description --description "DocOpt-compatible option description inside 'Options' section"
+function __arghandle_option --argument-names short long description default --description "DocOpt-compatible option description inside 'Options' section"
     set --local description (string replace --all --regex -- '(\[[^][ ]\])' (set_color "$arghandle_option_mnemonic_color")'$1'(set_color normal) "$description")
-    echo -e "  "(set_color "$arghandle_option_color")"-$short --$long"(set_color normal)"  $description."
+    echo -n -e "  "(set_color "$arghandle_option_color")"-$short --$long"(set_color normal)"  $description"
+    test -n "$default" && echo -n " [default: "(set_color $arghandle_option_default_color)$default(set_color normal)"]"
+    echo .
 end
 
 function __arghandle_separator --description 'DocOpt-compatible section separator'
@@ -331,8 +335,8 @@ function arghandle --description 'Parses arguments and provides automatically ge
         __arghandle_option n name "Specify a [n]ame of a command for error messages (required)"
         __arghandle_option d description "Specify a [d]escription of a command for -h/--help (required)"
         __arghandle_option e exclusive "Specify [e]xclusive options from option definitions"
-        __arghandle_option m min-args "Specify a [m]inimum amount of positional arguments"
-        __arghandle_option M max-args "Specify a [M]aximum amount of positional arguments"
+        __arghandle_option m min-args "Specify a [m]inimum amount of positional arguments" 0
+        __arghandle_option M max-args "Specify a [M]aximum amount of positional arguments" infinity
         __arghandle_option s short "Specify a [s]hort variant of an option"
         __arghandle_option d description "Specify an option [d]escription"
         __arghandle_option l long "Specify a [l]ong variant of an option"
@@ -631,7 +635,8 @@ function arghandle --description 'Parses arguments and provides automatically ge
         if test -n "$option_default_specified"
             set --local inferred_type (inferred_type_from_expression "$option_default")
             if test "$option_type" != "$inferred_type"
-                __arghandle_in_definition_error "'--default' type equal to '$option_type' type" "--type = $option_type and --default type = $inferred_type" "$index"
+                __arghandle_in_definition_error "'--default' type equal to '$option_type
+                ' type" "--type = $option_type and --default type = $inferred_type" "$index"
                 return 1
             end
         end
@@ -676,7 +681,8 @@ function arghandle --description 'Parses arguments and provides automatically ge
 
     set index 1
     while test "$index" -lt "$option_index"
-        echo __arghandle_option "$short_options[$index]" "$long_options[$index]" (string escape "$options_description[$index]") ";"
+        echo __arghandle_option "$short_options[$index]" "$long_options[$index]" \
+            (string escape "$options_description[$index]") (string escape "$options_default[$index]") ";"
         set index (math "$index" + 1)
     end
 
