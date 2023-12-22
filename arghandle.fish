@@ -161,6 +161,126 @@ function inferred_type_from_contraints --argument-names range enum --description
     echo "$inferred_type"
 end
 
+function is_in_int_range --argument-names range value --description 'Check whether a value in an int range'
+    is_int_range "$range" || return
+    is_int "$value" || return
+
+    set --local start (range_start "$range")
+    set --local end (range_end "$range")
+
+    if test -n "$start" && test -n "$end"
+        test "$start" -le "$value" && test "$end" -ge "$value"
+    else if test -n "$start"
+        test "$start" -le "$value"
+    else if test -n "$end"
+        test "$end" -ge "$value"
+    end
+end
+
+function is_in_float_range --argument-names range value --description 'Check whether a value in an float range'
+    is_float_range "$range" || return
+    is_float "$value" || return
+
+    set --local start (range_start "$range")
+    set --local end (range_end "$range")
+
+    if test -n "$start" && test -n "$end"
+        test "$start" -le "$value" && test "$end" -ge "$value"
+    else if test -n "$start"
+        test "$start" -le "$value"
+    else if test -n "$end"
+        test "$end" -ge "$value"
+    end
+end
+
+function is_in_range --argument-names range value --description 'Check whether a value in a range'
+    is_in_int_range "$range" "$value" || is_in_float_range "$range" "$value"
+end
+
+function is_in_int_enum --argument-names enum value --description 'Check whether a value in an int enum'
+    is_int_enum "$enum" || return
+    is_int "$value" || return
+
+    set --local items (string split -- , "$enum")
+    for item in $items
+        test "$item" -eq "$value" && return
+    end
+
+    return 1
+end
+
+function is_in_float_enum --argument-names enum value --description 'Check whether a value in a float enum'
+    is_float_enum "$enum" || return
+    is_float "$value" || return
+
+    set --local items (string split -- , "$enum")
+    for item in $items
+        test "$item" -eq "$value" && return
+    end
+
+    return 1
+end
+
+function is_in_bool_enum --argument-names enum value --description 'Check whether a value in a bool enum'
+    is_bool_enum "$enum" || return
+    is_bool "$value" || return
+
+    set --local items (string split -- , "$enum")
+    for item in $items
+        test "$item" = "$value" && return
+    end
+
+    return 1
+end
+
+function is_in_str_enum --argument-names enum value --description 'Check whether a value in a str enum'
+    is_str_enum "$enum" || return
+    is_str "$value" || return
+
+    set --local items (string split -- , "$enum")
+    for item in $items
+        test "$item" = "$value" && return
+    end
+
+    return 1
+end
+
+function is_in_enum --argument-names enum value --description 'Check whether a value in an enum'
+    is_in_int_enum "$enum" "$value" || is_in_float_enum "$enum" "$value" || is_in_bool_enum "$enum" "$value" || is_in_str_enum "$enum" "$value"
+end
+
+function range_to_str --argument-names range --description 'Convert a range to a string'
+    is_range "$range" || return
+
+    set --local start (range_start "$range")
+    set --local end (range_end "$range")
+
+    set --local str ""
+    test -n "$start" && set str "greater than or equal to $start"
+    test -n "$start" && test -n "$end" && set str "$str and "
+    test -n "$end" && set str $str"less than or equal to $end"
+
+    echo "$str"
+end
+
+function enum_to_str --argument-names enum --description 'Convert an enum to a string'
+    is_enum "$enum" || return
+    echo -n "one of "
+    set --local items (string split -- , "$enum")
+    set --local count (count $items)
+
+    echo -n "$items[1]"
+
+    set --local index 2
+    while test "$index" -lt "$count"
+        echo -n ", $items[$index]"
+        set index (math "$index" + 1)
+    end
+
+    test "$count" -gt 1 && echo -n " and $items[$count]"
+end
+
+
 function __arghandle_error --argument-names expected found
     if test -n "$found"
         set found "'$found'"
@@ -317,12 +437,14 @@ function arghandle --description 'Parses arguments and provides automatically ge
     set --local short_options
     set --local long_options
     set --local options_description
-    set --local options_required
+    set --local options_is_flag
     set --local options_type
     set --local options_range
     set --local options_enum
     set --local options_validator
     set --local options_default
+
+    set --local options_default_specified
 
     if string match --regex --quiet -- '^(-h|--help)$' "$argv[1]"
         __arghandle_description "Parses arguments and provides automatically generated help available via -h/--help"
@@ -340,7 +462,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
         __arghandle_option s short "Specify a [s]hort variant of an option"
         __arghandle_option d description "Specify an option [d]escription"
         __arghandle_option l long "Specify a [l]ong variant of an option"
-        __arghandle_option r required "Specify whether an option is [r]equired"
+        __arghandle_option f flag "Specify whether an option is [f]lag and doesn't accept any argument"
         __arghandle_option t type "Specify a value [t]ype of an option, must be one of: str, int, float, bool"
         __arghandle_option R range "Specify a valid value [R]ange of an option as a number range"
         __arghandle_option e enum "Specify a valid value of an option as an [e]num"
@@ -478,7 +600,6 @@ function arghandle --description 'Parses arguments and provides automatically ge
     end
 
     set --local option_index 1
-    set --local option_default_specified
 
     while set --query "argv[$index]"
         if test "$argv[$index]" != "["
@@ -509,10 +630,10 @@ function arghandle --description 'Parses arguments and provides automatically ge
                     set options_description[$option_index] "$argument"
                 case --description
                     set options_description[$option_index] "$argument"
-                case -r
-                    set options_required[$option_index] true
-                case --required
-                    set options_required[$option_index] true
+                case -f
+                    set options_is_flag[$option_index] true
+                case --flag
+                    set options_is_flag[$option_index] true
                 case -t
                     set options_type[$option_index] "$argument"
                 case --type
@@ -531,16 +652,16 @@ function arghandle --description 'Parses arguments and provides automatically ge
                     set options_validator[$option_index] "$argument"
                 case -d
                     set options_default[$option_index] "$argument"
-                    set option_default_specified true
+                    set options_default_specified[$option_index] true
                 case --default
                     set options_default[$option_index] "$argument"
-                    set option_default_specified true
+                    set options_default_specified[$option_index] true
                 case '*'
                     __arghandle_incorrect_option_in_definition_error "$option" "$option_index"
                     return 1
             end
 
-            not string match --regex --quiet -- '^(-r|--required)$' "$option"
+            not string match --regex --quiet -- '^(-f|--flag)$' "$option"
             set --local requires_argument "$status"
             if test "$requires_argument" -eq 0 && not set --query argument
                 __arghandle_incorrect_option_empty_value_format_in_definition_error "$option" "$option_index"
@@ -624,19 +745,20 @@ function arghandle --description 'Parses arguments and provides automatically ge
         end
 
         set option_type "$options_type[$index]"
-        set --local option_required "$options_required[$index]"
+        set --local option_is_flag "$options_is_flag[$index]"
         set --local option_default "$options_default[$index]"
+        set --local option_default_specified "$options_default_specified[$index]"
 
-        if test -n "$option_required" && test -n "$option_default_specified"
-            __arghandle_in_definition_error "either '--required' or '--default' options" "both options" "$index"
+        if test -n "$option_is_flag" && test -n "$option_default_specified"
+            __arghandle_in_definition_error "either '--flag' or '--default' options" "both options" "$index"
             return 1
         end
 
         if test -n "$option_default_specified"
             set --local inferred_type (inferred_type_from_expression "$option_default")
             if test "$option_type" != "$inferred_type"
-                __arghandle_in_definition_error "'--default' type equal to '$option_type
-                ' type" "--type = $option_type and --default type = $inferred_type" "$index"
+                __arghandle_in_definition_error "'--default' type equal to '$option_type\
+' type" "--type = $option_type and --default type = $inferred_type" "$index"
                 return 1
             end
         end
@@ -656,7 +778,28 @@ function arghandle --description 'Parses arguments and provides automatically ge
     set --local generated_option_specification h/help
     set index 1
     while test "$index" -lt "$option_index"
-        set --append generated_option_specification "$short_options[$index]/$long_options[$index]"
+        set --local option_is_flag "$options_is_flag[$index]"
+        set --local option_specification "$short_options[$index]/$long_options[$index]"
+
+        if test -z "$option_is_flag"
+            set option_specification "$option_specification="
+
+            set --local option_type "$options_type[$index]"
+            set --local short_option "$short_options[$index]"
+            set --local option_range "$options_range[$index]"
+            set --local option_enum "$options_enum[$index]"
+
+            set option_specification "$option_specification! "
+
+            if test -n "$option_range"
+                set option_specification $option_specification"is_in_range \"$option_range\" \"\$_flag_value\""
+            else if test -n "$option_enum"
+                set option_specification $option_specification"is_in_enum \"$option_enum\" \"\$_flag_value\""
+            end
+        end
+
+        set --append generated_option_specification (string escape -- "$option_specification")
+
         set index (math "$index" + 1)
     end
 
@@ -670,7 +813,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
     test -n "$max_args" && set --prepend parse_command --max-args "$max_args"
     test -n "$min_args" && set --prepend parse_command --min-args "$min_args"
 
-    echo argparse --name "$name" "$parse_command" -- '$argv' ";"
+    echo argparse --name "$name" "$parse_command" -- '$argv' "||" return ";"
     echo if set --query _flag_h ";"
     echo __arghandle_description (string escape "$description") ";"
     echo __arghandle_separator ";"
@@ -688,4 +831,29 @@ function arghandle --description 'Parses arguments and provides automatically ge
 
     echo return ";"
     echo end ";"
+
+    set index 1
+    while test "$index" -lt "$option_index"
+        set --local option_is_flag "$options_is_flag[$index]"
+        set --local option_default "$options_default[$index]"
+        set --local option_default_specified "$options_default_specified[$index]"
+        set --local short_option "$short_options[$index]"
+        set --local long_option "$long_options[$index]"
+        set --local option_variable "_flag_$long_option"
+
+        if test -n "$option_is_flag"
+            set index (math "$index" + 1)
+            continue
+        end
+
+        if test -n "$option_default_specified"
+            echo not set --query "$option_variable" "&&" set "$option_variable" (string escape -- "$option_default") ";"
+        else
+            echo if not set --query "$option_variable" ";"
+            echo echo "$name: Missing option -$short_option/--$long_option" ">&2" ";"
+            echo return 1 ";"
+            echo end ";"
+        end
+        set index (math "$index" + 1)
+    end
 end
