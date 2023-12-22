@@ -446,6 +446,8 @@ function arghandle --description 'Parses arguments and provides automatically ge
 
     set --local options_default_specified
 
+    set --local get_completion
+
     if string match --regex --quiet -- '^(-h|--help)$' "$argv[1]"
         __arghandle_description "Parses arguments and provides automatically generated help available via -h/--help"
         __arghandle_separator
@@ -468,6 +470,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
         __arghandle_option e enum "Specify a valid value of an option as an [e]num"
         __arghandle_option v validator "Specify a value [v]alidator of an option as a call to a function"
         __arghandle_option d default "Specify a [d]efault value of an option"
+        __arghandle_option c completion "Get a [c]ompletion code instead of one for parsing arguments"
         return
     end
 
@@ -498,12 +501,20 @@ function arghandle --description 'Parses arguments and provides automatically ge
                 set max_args "$argument"
             case --max-args
                 set max_args "$argument"
+            case -c
+                set get_completion true
+            case --completion
+                set get_completion true
             case '*'
                 __arghandle_incorrect_option_out_of_definition_error "$option"
                 return 1
         end
 
-        set index (math "$index" + 2)
+        not string match --regex --quiet -- '^(-c|--completion)$' "$option"
+        set --local requires_argument "$status"
+        test "$requires_argument" -eq 0 && set index (math "$index" + 1)
+
+        set index (math "$index" + 1)
     end
 
     if test -z "$name"
@@ -775,6 +786,46 @@ function arghandle --description 'Parses arguments and provides automatically ge
         return 1
     end
 
+    if test -n "$get_completion"
+        echo complete --command "$name" --short-option h --long-option help --description "'Show help'" ";"
+
+        set index 1
+        while test "$index" -lt "$option_index"
+            set --local short_option "$short_options[$index]"
+            set --local long_option "$long_options[$index]"
+            set --local option_description "$options_description[$index]"
+            set --local option_range "$options_range[$index]"
+            set --local option_enum "$options_enum[$index]"
+            set --local option_default_specified "$options_default_specified[$index]"
+            set --local option_default "$options_default[$index]"
+
+            echo -n complete --command "$name" --short-option "$short_option" --long-option "$long_option" --description \
+                (string escape -- "$option_description")" "
+
+            set --local arguments ""
+            test -n "$option_default_specified" && set arguments "$option_default"
+
+            set --local start (range_start "$option_range")
+            set --local end (range_end "$option_range")
+            test -n "$option_range" && set arguments "$arguments $start $end"
+
+            if test -n "$option_enum"
+                set --local items (string split -- , "$option_enum")
+                for item in $items
+                    set arguments "$arguments $item"
+                end
+            end
+
+            set arguments (string replace --regex --all -- '^\s+|\s+$' '' $arguments)
+
+            test -n "$arguments" && echo -n --arguments (string escape -- "$arguments")
+            echo ";"
+            
+            set index (math "$index" + 1)
+        end
+        return
+    end
+
     set --local generated_option_specification h/help
     set index 1
     while test "$index" -lt "$option_index"
@@ -784,8 +835,6 @@ function arghandle --description 'Parses arguments and provides automatically ge
         if test -z "$option_is_flag"
             set option_specification "$option_specification="
 
-            set --local option_type "$options_type[$index]"
-            set --local short_option "$short_options[$index]"
             set --local option_range "$options_range[$index]"
             set --local option_enum "$options_enum[$index]"
 
