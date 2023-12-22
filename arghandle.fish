@@ -787,6 +787,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
     end
 
     if test -n "$get_completion"
+        echo complete --erase "$name" ";"
         echo complete --command "$name" --short-option h --long-option help --description "'Show help'" ";"
 
         set index 1
@@ -802,11 +803,22 @@ function arghandle --description 'Parses arguments and provides automatically ge
             echo -n complete --command "$name" --short-option "$short_option" --long-option "$long_option" --description \
                 (string escape -- "$option_description")" "
 
-            set --local arguments ""
-            test -n "$option_default_specified" && set arguments "$option_default"
+            set --local raw_start (range_start "$option_range")
+            set --local raw_end (range_end "$option_range")
 
-            set --local start (range_start "$option_range")
-            set --local end (range_end "$option_range")
+            set --local arguments ""
+
+            test -n "$option_default_specified" && test "$option_default" != "$raw_start" && test "$option_default" != "$raw_end" \
+                 set arguments "$option_default\t$arghandle_option_default_suffix"
+
+            set --local min_suffix "$arghandle_option_min_suffix"
+            test "$option_default" = (range_start "$option_range") && set min_suffix "$arghandle_option_default_suffix-$arghandle_option_min_suffix"
+            
+            set --local max_suffix "$arghandle_option_max_suffix"
+            test "$option_default" = (range_end "$option_range") && set max_suffix "$arghandle_option_default_suffix-$arghandle_option_max_suffix"
+
+            set --local start "$raw_start\t$min_suffix"
+            set --local end "$raw_end\t$max_suffix"
             test -n "$option_range" && set arguments "$arguments $start $end"
 
             if test -n "$option_enum"
@@ -817,8 +829,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
             end
 
             set arguments (string replace --regex --all -- '^\s+|\s+$' '' $arguments)
-
-            test -n "$arguments" && echo -n --arguments (string escape -- "$arguments")
+            test -n "$arguments" && echo -n --arguments (string escape -- "$arguments")" "
             echo ";"
             
             set index (math "$index" + 1)
