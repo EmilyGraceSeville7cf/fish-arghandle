@@ -849,7 +849,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
     else if test -n "$get_snippet_for"
         switch "$get_snippet_for"
             case code
-                set --local body "$name "
+                set --local body "$name"
 
                 set --local index 1
                 set --local placeholder_index 1
