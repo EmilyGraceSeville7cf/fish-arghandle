@@ -600,12 +600,13 @@ function arghandle --description 'Parses arguments and provides automatically ge
         set --erase expanded_argv[(count $expanded_argv)]
 
         set --erase argv
+        set --erase argv # bug: for some reason it is required to properly clear $argv
         set source_index 1
         while test "$source_index" -le (count $expanded_argv)
             set argv[$source_index] "$expanded_argv[$source_index]"
             set source_index (math "$source_index" + 1)
         end
-
+        
         echo -n (set_color normal)"arghandle: arguments expanded to " >&2
         echo (set_color yellow)(string escape -- $argv)(set_color normal) >&2
     end
@@ -900,7 +901,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
         set --local short_option "$short_options[$index]"
         set --local long_option "$long_options[$index]"
         set --local option_variable "_flag_$long_option"
-
+        
         if test -n "$option_is_flag"
             set index (math "$index" + 1)
             continue
