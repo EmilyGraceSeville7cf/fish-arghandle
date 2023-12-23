@@ -616,7 +616,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
             set argv[$source_index] "$expanded_argv[$source_index]"
             set source_index (math "$source_index" + 1)
         end
-        
+
         echo -n (set_color normal)"arghandle: arguments expanded to " >&2
         echo (set_color yellow)(string escape -- $argv)(set_color normal) >&2
     end
@@ -820,11 +820,11 @@ function arghandle --description 'Parses arguments and provides automatically ge
             set --local arguments ""
 
             test -n "$option_default_specified" && test "$option_default" != "$raw_start" && test "$option_default" != "$raw_end" \
-                 set arguments "$option_default\t$arghandle_option_default_suffix"
+                set arguments "$option_default\t$arghandle_option_default_suffix"
 
             set --local min_suffix "$arghandle_option_min_suffix"
             test "$option_default" = "$raw_start" && set min_suffix "$arghandle_option_default_suffix-$arghandle_option_min_suffix"
-            
+
             set --local max_suffix "$arghandle_option_max_suffix"
             test "$option_default" = "$raw_end" && set max_suffix "$arghandle_option_default_suffix-$arghandle_option_max_suffix"
 
@@ -842,7 +842,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
             set arguments (string replace --regex --all -- '^\s+|\s+$' '' $arguments)
             test -n "$arguments" && echo -n --arguments (string escape -- "$arguments")" "
             echo ";"
-            
+
             set index (math "$index" + 1)
         end
         return
@@ -875,8 +875,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
                     --arg prefix "$name" \
                     --arg description "$description" \
                     --arg body "$body" >&2
-            end
-
+        end
         return
     end
 
@@ -943,7 +942,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
         set --local short_option "$short_options[$index]"
         set --local long_option "$long_options[$index]"
         set --local option_variable "_flag_$long_option"
-        
+
         if test -n "$option_is_flag"
             set index (math "$index" + 1)
             continue
