@@ -472,7 +472,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
         __arghandle_option v validator "Specify a value [v]alidator of an option as a call to a function"
         __arghandle_option d default "Specify a [d]efault value of an option"
         __arghandle_option c completion "Get a [c]ompletion code instead of one for parsing arguments"
-        __arghandle_option s snippet "Get a [s]nippet code for instead of one for parsing arguments, must be one of: code (Visual Studio Code)"
+        __arghandle_option s snippet "Get a [s]nippet code instead of one for parsing arguments, must be one of: code (Visual Studio Code)"
         return
     end
 
