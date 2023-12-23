@@ -447,6 +447,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
     set --local options_default_specified
 
     set --local get_completion
+    set --local get_snippet_for
 
     if string match --regex --quiet -- '^(-h|--help)$' "$argv[1]"
         __arghandle_description "Parses arguments and provides automatically generated help available via -h/--help"
@@ -471,6 +472,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
         __arghandle_option v validator "Specify a value [v]alidator of an option as a call to a function"
         __arghandle_option d default "Specify a [d]efault value of an option"
         __arghandle_option c completion "Get a [c]ompletion code instead of one for parsing arguments"
+        __arghandle_option s snippet "Get a [s]nippet code for instead of one for parsing arguments, must be one of: code (Visual Studio Code)"
         return
     end
 
@@ -505,6 +507,10 @@ function arghandle --description 'Parses arguments and provides automatically ge
                 set get_completion true
             case --completion
                 set get_completion true
+            case -s
+                set get_snippet_for "$argument"
+            case --snippet
+                set get_snippet_for "$argument"
             case '*'
                 __arghandle_incorrect_option_out_of_definition_error "$option"
                 return 1
@@ -535,6 +541,10 @@ function arghandle --description 'Parses arguments and provides automatically ge
     end
     if test -n "$min_args" && test -n "$max_args" && test "$min_args" -gt "$max_args"
         __arghandle_out_of_definition_error "'--min-args' be less than or equal to '--max-args'" "--min-args = $min_args and --max-args = $max_args"
+        return 1
+    end
+    if test -n "$get_snippet_for" && not is_in_str_enum code "$get_snippet_for"
+        __arghandle_out_of_definition_error "--snippet to be one of code" "$get_snippet_for"
         return 1
     end
 
@@ -813,10 +823,10 @@ function arghandle --description 'Parses arguments and provides automatically ge
                  set arguments "$option_default\t$arghandle_option_default_suffix"
 
             set --local min_suffix "$arghandle_option_min_suffix"
-            test "$option_default" = (range_start "$option_range") && set min_suffix "$arghandle_option_default_suffix-$arghandle_option_min_suffix"
+            test "$option_default" = "$raw_start" && set min_suffix "$arghandle_option_default_suffix-$arghandle_option_min_suffix"
             
             set --local max_suffix "$arghandle_option_max_suffix"
-            test "$option_default" = (range_end "$option_range") && set max_suffix "$arghandle_option_default_suffix-$arghandle_option_max_suffix"
+            test "$option_default" = "$raw_end" && set max_suffix "$arghandle_option_default_suffix-$arghandle_option_max_suffix"
 
             set --local start "$raw_start\t$min_suffix"
             set --local end "$raw_end\t$max_suffix"
@@ -835,6 +845,38 @@ function arghandle --description 'Parses arguments and provides automatically ge
             
             set index (math "$index" + 1)
         end
+        return
+    else if test -n "$get_snippet_for"
+        switch "$get_snippet_for"
+            case code
+                set --local body "$name "
+
+                set --local index 1
+                set --local placeholder_index 1
+                while test "$index" -lt "$option_index"
+                    if test -n "$option_is_flag"
+                        set index (math "$index" + 1)
+                        continue
+                    end
+
+                    set --local short_option "$short_options[$index]"
+                    set --local long_option "$long_options[$index]"
+                    set --local option_description "$options_description[$index]"
+
+                    set --local placeholder_value_index (math "$placeholder_index" + 1)
+                    set body "$body \${$placeholder_index|--$long_option,-$short_option|} \${$placeholder_value_index:"(string escape -- "$option_description")"}"
+
+                    set index (math "$index" + 1)
+                    set placeholder_index (math "$placeholder_index" + 2)
+                end
+
+                jq '{ ($id): { prefix: $prefix, description: $description, body: $body } }' --monochrome-output --null-input \
+                    --arg id "$name" \
+                    --arg prefix "$name" \
+                    --arg description "$description" \
+                    --arg body "$body" >&2
+            end
+
         return
     end
 
