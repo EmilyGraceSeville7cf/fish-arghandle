@@ -288,7 +288,7 @@ function __arghandle_error --argument-names expected found
         set found nothing
     end
 
-    echo -n (set_color normal)"arghandle: Expected "(set_color green)"$expected"
+    echo -n (set_color normal)"arghandle: Expected "(set_color green)"$expected" >&2
     echo (set_color normal)", but "(set_color red)"$found"(set_color normal)" found" >&2
 end
 
