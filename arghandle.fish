@@ -464,8 +464,8 @@ function arghandle --description 'Parses arguments and provides automatically ge
         __arghandle_option M max-args "Specify a [M]aximum amount of positional arguments" infinity
         __arghandle_option c completion "Get a [c]ompletion code instead of one for parsing arguments"
         __arghandle_option s snippet "Get a [s]nippet code instead of one for parsing arguments, must be one of: code (Visual Studio Code)"
-        __arghandle_option s short "Specify a [s]hort variant of an option"
         __arghandle_option d description "Specify an option [d]escription"
+        __arghandle_option s short "Specify a [s]hort variant of an option"
         __arghandle_option l long "Specify a [l]ong variant of an option"
         __arghandle_option f flag "Specify whether an option is [f]lag and doesn't accept any argument"
         __arghandle_option t type "Specify a value [t]ype of an option, must be one of: str, int, float, bool"
