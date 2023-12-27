@@ -462,6 +462,8 @@ function arghandle --description 'Parses arguments and provides automatically ge
         __arghandle_option e exclusive "Specify [e]xclusive options from option definitions"
         __arghandle_option m min-args "Specify a [m]inimum amount of positional arguments" 0
         __arghandle_option M max-args "Specify a [M]aximum amount of positional arguments" infinity
+        __arghandle_option c completion "Get a [c]ompletion code instead of one for parsing arguments"
+        __arghandle_option s snippet "Get a [s]nippet code instead of one for parsing arguments, must be one of: code (Visual Studio Code)"
         __arghandle_option s short "Specify a [s]hort variant of an option"
         __arghandle_option d description "Specify an option [d]escription"
         __arghandle_option l long "Specify a [l]ong variant of an option"
@@ -471,8 +473,6 @@ function arghandle --description 'Parses arguments and provides automatically ge
         __arghandle_option e enum "Specify a valid value of an option as an [e]num"
         __arghandle_option v validator "Specify a value [v]alidator of an option as a call to a function"
         __arghandle_option d default "Specify a [d]efault value of an option"
-        __arghandle_option c completion "Get a [c]ompletion code instead of one for parsing arguments"
-        __arghandle_option s snippet "Get a [s]nippet code instead of one for parsing arguments, must be one of: code (Visual Studio Code)"
         return
     end
 
