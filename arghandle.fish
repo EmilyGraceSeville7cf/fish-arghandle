@@ -888,6 +888,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
         if test -z "$option_is_flag"
             set option_specification "$option_specification="
 
+            set --local option_type "$options_type[$index]"
             set --local option_range "$options_range[$index]"
             set --local option_enum "$options_enum[$index]"
 
@@ -897,6 +898,8 @@ function arghandle --description 'Parses arguments and provides automatically ge
                 set option_specification $option_specification"is_in_range \"$option_range\" \"\$_flag_value\""
             else if test -n "$option_enum"
                 set option_specification $option_specification"is_in_enum \"$option_enum\" \"\$_flag_value\""
+            else
+                set option_specification $option_specification"test (inferred_type_from_expression \"\$_flag_value\") = $option_type"
             end
         end
 
