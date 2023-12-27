@@ -13,6 +13,8 @@ eval (arghandle {{option ...}})
 
 ## Introduction example
 
+Simplified syntax:
+
 ```fish
 source ./arghandle.fish
 
@@ -46,6 +48,44 @@ eval (arghandle --completion $__search_book_option_specification 2> /dev/null)
 # Call function as it's done with "argparse".
 search_book --book="Little women" --author="Louisa May Alcott" --from=1 --to=30
 ```
+
+Comprehensive syntax:
+
+```fish
+source ./arghandle.fish
+
+# Option specification with a simple syntax.
+# All options for "search_book" functions are described in the following form:
+# [ --description {{description}} --short {{short_option}} --long {{long_option}} --type {{type}} ]
+# Mnemonics in square brackets are used to help users memorize short options.
+set __search_book_option_specification \
+    --name search_book --description 'Function to search books in an online book store' \
+    # --author|-a option should be an arbitrary string
+    [ --description 'A book [a]uthor to search' --short a --long author --type str ] \
+    # --book|-b option should be an arbitrary string
+    [ --description 'A [b]ook to search' --short b --long book --type str ] \
+    # --from|-f option shoold be an arbitrary integer
+    [ --description 'A book page to show [f]rom' --short f --long from --type int ] \
+    # --to|-t option should be an arbitrary integer
+    [ --description 'A book page to show up [t]o' --short t --long to --type int ]
+    
+function search_book
+    # Evaluate all arguments, and use them as with "argparse" below.
+    # "2> /dev/null" is appended to the end to hide a note about how "arghandle" arguments are interpreted.
+    eval (arghandle $__search_book_option_specification 2> /dev/null)
+    # Options are available as "$_flag_{{flag_name}}".
+    echo "Searching book '$_flag_book' written by '$_flag_author' to show $_flag_from..$_flag_to pages..."
+end
+
+# Get the completion for "search_book" function.
+# "2> /dev/null" is appended to the end to hide a note about how "arghandle" arguments are interpreted.
+eval (arghandle --completion $__search_book_option_specification 2> /dev/null)
+
+# Call function as it's done with "argparse".
+search_book --book="Little women" --author="Louisa May Alcott" --from=1 --to=30
+```
+
+The latter syntax allows provide more details about each available option, like its default value.
 
 ## Syntax
 
