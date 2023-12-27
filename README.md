@@ -87,6 +87,43 @@ search_book --book="Little women" --author="Louisa May Alcott" --from=1 --to=30
 
 The latter syntax allows provide more details about each available option, like its default value.
 
+While `arghandle` parses incoming arguments for `search_book` and prints automatically generated help:
+
+```markdown
+Function to search books in an online book store.
+
+Usage:
+  search_book [options]
+
+Options:
+  -a --author  A book [a]uthor to search.
+  -b --book  A [b]ook to search.
+  -f --from  A book page to show [f]rom.
+  -t --to  A book page to show up [t]o
+```
+
+when requested with `--help`|`-h` option it also provides completion (requested with `--completion`|`-c` option):
+
+```fish
+complete --command search_book --short-option h --long-option help --description 'Show help' ;
+complete --command search_book --short-option a --long-option author --description 'A book [a]uthor to search' ;
+complete --command search_book --short-option b --long-option book --description 'A [b]ook to search' ;
+complete --command search_book --short-option f --long-option from --description 'A book page to show [f]rom' ;
+complete --command search_book --short-option t --long-option to --description 'A book page to show up [t]o' ;
+```
+
+and snippet (requested with `--snippet`|`-s` option):
+
+```json
+{
+  "search_book": {
+    "prefix": "search_book",
+    "description": "Function to search books in an online book store",
+    "body": "search_book ${1|--author,-a|} ${2:'A book [a]uthor to search'} ${3|--book,-b|} ${4:'A [b]ook to search'} ${5|--from,-f|} ${6:'A book page to show [f]rom'} ${7|--to,-t|} ${8:'A book page to show up [t]o'}"
+  }
+}
+```
+
 ## Syntax
 
 ```fish
