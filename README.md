@@ -1,6 +1,6 @@
 # Argument handler
 
-Parses arguments, provides automatically generated help available via `-h`|`--help` and generates completions. Under the hood it generates a code to do all this stuff, that is why to make it work argument handler (`arghandle` function) should be wrapped in `eval`:
+Parses arguments, provides automatically generated help available via `-h`|`--help`, generates completions and snippets. Under the hood it generates a code to do all this stuff, that is why to make it work argument handler (`arghandle` function) should be wrapped in `eval`:
 
 ```fish
 eval (arghandle ...)
@@ -8,76 +8,46 @@ eval (arghandle ...)
 
 where instead (`...`) of ellipsis valid command options are written and other things.
 
-## Introduction
+## Pros and cons
 
-Fish shell provides facilities to parse arguments and write completions, but they are separated. In other words, parsing is done completely independent from completions. That means that programmers have to adjust completions manually to match argument parsing done via `argparse` and vice versa. It makes this whole process error-prone and unreliable.
+- :white_check_mark: One option specification for all kind of things like help, completions and snippets.
+- :white_check_mark: Better type-safety, no need to check whether some argument in a specific range/enum or of some type manually.
 
-This argument handler aims to solve this issue. It allows users to define valid command options, do argument parsing and get help system with completions out of the box. Programmers don't have to define `-h`|`--help` option themselves, it's always provided by default to keep consistency between ways to invoke help for different user functions.
-
-Let's say, Fish programmer wants to define a function which searches for some book in some online store (we don't care about implementation details for now). There are several book filtering criteria like it's author, name, etc. Let's focus on these first too. To provide them to the function programmer can use options like `-a`|`--author` and `-b`|`--book`:
-
-```fish
-# Variable is used just not to redescribe all options again when completions should be generated.
-set __search_for_book_option_specification --name 'search_for_book' --description 'Search for a book in an online store' \
-    [ --description 'A book author' --short a --long author --type str ] \
-    [ --description 'A book name' --short b --long book --type str ]
-
-function search_for_book  
-    # The most important line, without it nothing works.
-    # Generated code by arghandle contains call to argparse and a check for -h|--help option existence in $argv.
-    # That's why there is no explicit mention for $argv in arghandle call.
-    eval (arghandle $__search_for_book_option_specification)
-
-    # Some stuff to download book we don't care about now.
-end
-
-# Completions are generated somewhere here, but we don't mind about it for now.
-```
-
-`$__search_for_book_option_specification` variable contains option descriptions and their properties. Note that each option definition is enclosed inside brackets (which should be separate arguments as shown above). It could be rewritten in a JSON alike this:
-
-```json
-{
-    "name": "search_for_book",
-    "description": "Search for a book in an online store",
-    "definitions": [
-        {
-            "description": "A book",
-            "short": "b",
-            "long": "book",
-            "type": "str"
-        },
-        {
-            "description": "An author",
-            "short": "a",
-            "long": "author",
-            "type": "str"
-        }
-    ]
-}
-```
-
-This JSON is not currently parsed by argument parser (`arghandle` function), it is just a product of our imagination which illustrates meaning of all option definitions.
-
-Because option values often have some constraints simplified syntax has been developed to explain such restrictions quicker. So the example above can be rewritten as:
+## Introduction example
 
 ```fish
-# Types should be specified for all options, to guarantee all data
-# passed in a book search function has the right type. Also note ':'
-# after '--description' option, it signifies that this simplified syntax
-# is expected to be used. Without it code will not work.
-set __search_for_book_option_specification --name 'search_for_book' --description 'Search for a book in an online store' : \
-    str a/author 'A book author' \
-    str b/book 'A book name'
+source ./arghandle.fish
 
-function search_for_book  
-    eval (arghandle $__search_for_book_option_specification)
-
-    # Some stuff to download book we don't care about now.
+# Option specification with a simple syntax.
+# All options for "search_book" functions are described after a colon (:) in the following form:
+# {{type}} {{short_option}}/{{long_option}} {{description}}
+# Mnemonics in square brackets are used to help users memorize short options.
+set __search_book_option_specification \
+    --name search_book --description 'Function to search books in an online book store' : \
+    # --author|-a option should be an arbitrary string
+    str a/author 'A book [a]uthor to search' \
+    # --book|-b option should be an arbitrary string
+    str b/book 'A [b]ook to search' \
+    # --from|-f option should be an arbitrary integer
+    int f/from 'A book page to show [f]rom' \
+    # --to|-t option should be an arbitrary integer
+    int t/to 'A book page to show up [t]o'
+    
+function search_book
+    # Evaluate all arguments, and use them as with "argparse" below.
+    # "2> /dev/null" is appended to the end to hide a note about how "arghandle" arguments are interpreted.
+    eval (arghandle $__search_book_option_specification 2> /dev/null)
+    # Options are available as "$_flag_{{flag_name}}".
+    echo "Searching book '$_flag_book' written by '$_flag_author' to show $_flag_from..$_flag_to pages..."
 end
-```
 
-While using this syntax it's recommended to write each option definition on a separate line.
+# Get the completion for "search_book" function.
+# "2> /dev/null" is appended to the end to hide a note about how "arghandle" arguments are interpreted.
+eval (arghandle --completion $__search_book_option_specification 2> /dev/null)
+
+# Call function as it's done with "argparse".
+search_book --book="Little women" --author="Louisa May Alcott" --from=1 --to=30
+```
 
 ## Syntax
 
