@@ -3,10 +3,8 @@
 Parses arguments, provides automatically generated help available via `-h`|`--help`, generates completions and snippets. Under the hood it generates a code to do all this stuff, that is why to make it work argument handler (`arghandle` function) should be wrapped in `eval`:
 
 ```fish
-eval (arghandle ...)
+eval (arghandle {{option ...}})
 ```
-
-where instead (`...`) of ellipsis valid command options are written and other things.
 
 ## Pros and cons
 
@@ -52,29 +50,50 @@ search_book --book="Little women" --author="Louisa May Alcott" --from=1 --to=30
 ## Syntax
 
 ```fish
-__arghandle_usage 'arghandle [OPTIONS] [OPTION_DEFINITION]...'
+__arghandle_usage 'arghandle {{options ...}} {{option_definition ...}}'
 ```
 
-### Options
+### Options (`{{option ...}}`)
 
-The following options can be placed before option definitions (outside of square matching brackets):
+```fish
+arghandle --name {{function_name}} --description {{function_description}} {{other_option ...}}
+```
+
+The following options can be placed before option definitions (outside of square matching brackets or before the first colon):
 
 - `-h`|`--help`: Print [h]elp, to work must be the first option outside of square brackets.
 - `-n`|`--name`: Specify a [n]ame of a command for error messages (required).
-- `-d`|`--description`: Specify a [d]escription of a command for -h/--help (required).
+- `-d`|`--description`: Specify a [d]escription of a command for `-h`|`--help` (required).
 - `-e`|`--exclusive`: Specify [e]xclusive options from option definitions.
 - `-m`|`--min-args`: Specify a [m]inimum amount of positional arguments.
 - `-M`|`--max-args`: Specify a [M]aximum amount of positional arguments.
+- `-c`|`--completion`: Get a [c]ompletion code instead of one for parsing arguments, to work must be the first option outside of square brackets.
+- `-s`|`--snippet` Get a [s]nippet code instead of one for parsing arguments, must be one of: `code` (Visual Studio Code) and to work must be the first option outside of square brackets.
 
-### Option definitions
+### Option definitions (`{{option_definition ...}}`)
 
-The following options can be placed inside option definitions (inside of square matching brackets):
+Each option definition is either:
 
-- `-d`|`--description`: Specify an option [d]escription.
-- `-s`|`--short`: Specify a [s]hort variant of an option.
-- `-l`|`--long`: Specify a [l]ong variant of an option.
+```fish
+{{type|range|enum}} {{short_variant}}/{{long_variant}} {{option_description}}
+```
+
+or:
+
+```fish
+[ --description {{option_description}} --short {{short_variant}} --long {{long_variant}} {{other_option ...}} ]
+```
+
+The first form can be used just when colon (`:`) after [`{{option ...}}`](#options-option) is placed.
+
+The following options can be placed inside option definitions (inside of square matching brackets or after the first colon):
+
+- `-d`|`--description`: Specify an option [d]escription (required).
+- `-s`|`--short`: Specify a [s]hort variant of an option (required).
+- `-l`|`--long`: Specify a [l]ong variant of an option (required).
+- `-f`|`--flag`: Specify whether an option is [f]lag and doesn't accept any argument.
 - `-r`|`--required`: Specify whether an option is [r]equired.
-- `-t`|`--type`: Specify a value [t]ype of an option, must be one of: str, int, float, bool.
+- `-t`|`--type`: Specify a value [t]ype of an option, must be one of: `str`, `int`, `float`, `bool`.
 - `-R`|`--range`: Specify a valid value [R]ange of an option as a number range.
 - `-e`|`--enum`: Specify a valid value of an option as an [e]num.
 - `-v`|`--validator`: Specify a value [v]alidator of an option as a call to a function.
@@ -89,7 +108,7 @@ Notes:
   - `-R`|`--range` - tells that `-t`|`--type` is implicitly `int` or `float`
   - `-e`|`--enum` - tells `-t`|`--type` implicitly  
 
-## Useful functions
+## Additional functions
 
 To quicker discover current `arghandle` settings you can use these functions:
 
