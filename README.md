@@ -200,43 +200,41 @@ These Visual Studio Code snippets can help you to write option definitions faste
 
 ```json
 {
-	"arghandle simple": {
-		"prefix": [
-			"arghandle",
-			"a"
-		],
-		"description": "Simplified 'arghandle' syntax",
-		"body": [
-			"arghandle ${1|--name,-n|} '${2:Specify a [n]ame of a command for error messages (str)}' ${3|--description,-d|} '${4:Specify a [d]escription of a command for -h/--help (str)}' : \\",
-			"\t${5|int,float,bool,str|} ${6:-short-variant}/${7:--long-variant} '${8:option description}'"
-		]
-	},
-	"arghandle comprehensive": {
-		"prefix": [
-			"arghandle-comprehensive",
-			"ac"
-		],
-		"description": "Comprehensive 'arghandle' syntax",
-		"body": [
-			"arghandle ${1|--name,-n|} '${2:Specify a [n]ame of a command for error messages (str)}' ${3|--description,-d|} '${4:Specify a [d]escription of a command for -h/--help (str)}' \\",
-			"\t[ ${5|--description,-d|} '${6:option description (str)}' ${7|--long,-l|} ${8:--long-variant} ${9|--short,-s|} ${10:--short-variant} ${11|--type,-t|} ${12|int,float,bool,str|} ]"
-		]
-	},
-	"arghandle simple definition": {
-		"prefix": [
-			"arghandle-definition",
-			"ad"
-		],
-		"description": "Simplified 'arghandle' definition",
-		"body": "${1|int,float,bool,str|} ${2:-short-variant}/${3:--long-variant} '${4:option description}'"
-	},
-	"arghandle comprehensive definition": {
-		"prefix": [
-			"arghandle-comprehensive-definition",
-			"acd"
-		],
-		"description": "Comprehensive 'arghandle' definition",
-		"body": "[ ${1|--description,-d|} '${2:option description (str)}' ${3|--long,-l|} ${8:--long-variant} ${4|--short,-s|} ${5:--short-variant} ${6|--type,-t|} ${7|int,float,bool,str|} ]"
-	}
+    "arghandle simple": {
+        "prefix": ["arghandle", "a"],
+        "description": "Simplified 'arghandle' syntax",
+        "body": [
+            "arghandle ${1|--name,-n|} '${2:Specify a [n]ame of a command for error messages (str)}' ${3|--description,-d|} '${4:Specify a [d]escription of a command for -h/--help (str)}' : \\",
+            "\t${5|int,float,bool,str|} ${6:-short-variant}/${7:--long-variant} '${8:option description}'"
+        ]
+    },
+    "arghandle comprehensive": {
+        "prefix": ["arghandle-comprehensive", "ac"],
+        "description": "Comprehensive 'arghandle' syntax",
+        "body": [
+            "arghandle ${1|--name,-n|} '${2:Specify a [n]ame of a command for error messages (str)}' ${3|--description,-d|} '${4:Specify a [d]escription of a command for -h/--help (str)}' \\",
+            "\t[ ${5|--description,-d|} '${6:option description (str)}' ${7|--long,-l|} ${8:--long-variant} ${9|--short,-s|} ${10:--short-variant} ${11|--type,-t|} ${12|int,float,bool,str|} ]"
+        ]
+    },
+    "arghandle simple definition": {
+        "prefix": ["arghandle-definition", "ad"],
+        "description": "Simplified 'arghandle' definition",
+        "body": "${1|int,float,bool,str|} ${2:-short-variant}/${3:--long-variant} '${4:option description}'"
+    },
+    "arghandle comprehensive definition": {
+        "prefix": ["arghandle-comprehensive-definition", "acd"],
+        "description": "Comprehensive 'arghandle' definition",
+        "body": "[ ${1|--description,-d|} '${2:option description (str)}' ${3|--long,-l|} ${4:--long-variant} ${5|--short,-s|} ${6:--short-variant} ${7|--type,-t|} ${8|int,float,bool,str|} ]"
+    },
+    "arghandle simple range definition": {
+        "prefix": ["arghandle-range-definition", "ard"],
+        "description": "Simplified 'arghandle' range definition",
+        "body": "${1:from}..${2:to} ${3:-short-variant}/${4:--long-variant} '${5:option description}'"
+    },
+    "arghandle comprehensive range definition": {
+        "prefix": ["arghandle-comprehensive-range-definition", "acrd"],
+        "description": "Comprehensive 'arghandle' range definition",
+        "body": "[ ${1|--description,-d|} '${2:option description (str)}' ${3|--long,-l|} ${4:--long-variant} ${5|--short,-s|} ${6:--short-variant} ${7|--range,-R|} ${8:from}..${9:to} ]"
+    }
 }
 ```
