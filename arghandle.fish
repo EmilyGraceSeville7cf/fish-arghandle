@@ -405,7 +405,7 @@ function __arghandle_description --argument-names description --description 'The
     echo -e (set_color normal)"$description."
 end
 
-# Options in the form of '-o/--option' and '[options]' are highlighted with $arghandle_option_color.
+# Options in the form of '-o|--option' and placeholders are highlighted.
 function __arghandle_usage --argument-names usage --description "Usage inside 'Usage' section"
     set --local usage (string replace --all --regex -- '(-[^ =][/|]--[^ =]{2,})' (set_color "$arghandle_option_color")'$1'(set_color normal) "$usage")
     set --local usage (string replace --all --regex -- '\{\{([^{}() ]+( \.\.\.)?)\}\}' (set_color "$arghandle_str_placeholder_color")'{{$1}}'(set_color normal) "$usage")
