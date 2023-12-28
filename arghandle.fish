@@ -2,7 +2,11 @@
 
 set --query arghandle_title_color || set arghandle_title_color green
 set --query arghandle_option_color || set arghandle_option_color cyan
-set --query arghandle_placeholder_color || set arghandle_placeholder_color blue
+set --query arghandle_int_placeholder_color || set arghandle_int_placeholder_color red
+set --query arghandle_float_placeholder_color || set arghandle_float_placeholder_color yellow
+set --query arghandle_bool_placeholder_color || set arghandle_bool_placeholder_color green
+set --query arghandle_str_placeholder_color || set arghandle_str_placeholder_color blue
+
 set --query arghandle_option_mnemonic_color || set arghandle_option_mnemonic_color yellow
 set --query arghandle_option_default_color || set arghandle_option_default_color blue
 set --query arghandle_option_deprecation_notice_color || set arghandle_option_deprecation_notice_color red
@@ -10,6 +14,8 @@ set --query arghandle_option_deprecation_notice_color || set arghandle_option_de
 set --query arghandle_option_default_suffix || set arghandle_option_default_suffix default
 set --query arghandle_option_min_suffix || set arghandle_option_min_suffix min
 set --query arghandle_option_max_suffix || set arghandle_option_max_suffix max
+
+set --query arghandle_option_usage_max_count || set arghandle_option_usage_max_count 5
 
 
 function is_int --argument-names value --description 'Checks whether a value is an int'
@@ -401,8 +407,13 @@ end
 
 # Options in the form of '-o/--option' and '[options]' are highlighted with $arghandle_option_color.
 function __arghandle_usage --argument-names usage --description "Usage inside 'Usage' section"
-    set --local usage (string replace --all --regex -- '(-\S[/|]--\S{2,})' (set_color "$arghandle_option_color")'$1'(set_color normal) "$usage")
-    set --local usage (string replace --all --regex -- '(\{\{[^{} ]+( \.\.\.)?\}\})' (set_color "$arghandle_placeholder_color")'$1'(set_color normal) "$usage")
+    set --local usage (string replace --all --regex -- '(-[^ =][/|]--[^ =]{2,})' (set_color "$arghandle_option_color")'$1'(set_color normal) "$usage")
+    set --local usage (string replace --all --regex -- '\{\{([^{}() ]+( \.\.\.)?)\}\}' (set_color "$arghandle_str_placeholder_color")'{{$1}}'(set_color normal) "$usage")
+    set --local usage (string replace --all --regex -- '\{\{([^{}() ]+) \(int\)\}\}' (set_color "$arghandle_int_placeholder_color")'{{$1}}'(set_color normal) "$usage")
+    set --local usage (string replace --all --regex -- '\{\{([^{}() ]+) \(float\)\}\}' (set_color "$arghandle_float_placeholder_color")'{{$1}}'(set_color normal) "$usage")
+    set --local usage (string replace --all --regex -- '\{\{([^{}() ]+) \(bool\)\}\}' (set_color "$arghandle_bool_placeholder_color")'{{$1}}'(set_color normal) "$usage")
+    set --local usage (string replace --all --regex -- '\{\{([^{}() ]+) \(str\)\}\}' (set_color "$arghandle_str_placeholder_color")'{{$1}}'(set_color normal) "$usage")
+
     echo -e (set_color normal)"  $usage"
 end
 
@@ -455,7 +466,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
         __arghandle_description "Parses arguments and provides automatically generated help available via -h|--help"
         __arghandle_separator
         __arghandle_title Usage
-        __arghandle_usage "arghandle [-n|--name {{value}}] [-d|--description {{value}}] [-e|--exclusive {{value}}] [-m|--min-args {{value}}] [-M|--max-args {{value}}] {{option ...}}"
+        __arghandle_usage "arghandle [-n|--name {{value (str)}}] [-d|--description {{value (str)}}] [-e|--exclusive {{value (str)}}] [-m|--min-args {{value (int)}}] [-M|--max-args {{value (int)}}] {{option ...}}"
         __arghandle_separator
         __arghandle_title Options
         __arghandle_option h help "Print [h]elp, to work must be the first option outside of square brackets"
@@ -920,12 +931,37 @@ function arghandle --description 'Parses arguments and provides automatically ge
     test -n "$max_args" && set --prepend parse_command --max-args "$max_args"
     test -n "$min_args" && set --prepend parse_command --min-args "$min_args"
 
+    set --local options_usage "{{option ...}}"
+
+    if test (math $option_index - 1) -le "$arghandle_option_usage_max_count"
+        set options_usage
+        set --local index 1
+        while test "$index" -lt "$option_index"
+            set --local option_is_flag "$options_is_flag[$index]"
+            set --local short_option "$short_options[$index]"
+            set --local long_option "$long_options[$index]"
+            set --local option_type "$options_type[$index]"
+            set --local option_default_specified "$options_default_specified[$index]"
+
+            set --local option_usage ""
+
+            test -n "$option_default_specified" && set option_usage "["
+            set option_usage "$option_usage-$short_option|--$long_option"
+            test -z "$option_is_flag" && set option_usage "$option_usage={{value ($option_type)}}"
+            test -n "$option_default_specified" && set option_usage "$option_usage]"
+
+            set --append options_usage "$option_usage"
+            
+            set index (math "$index" + 1)
+        end
+    end
+
     echo argparse --name "$name" "$parse_command" -- '$argv' "||" return ";"
     echo if set --query _flag_h ";"
     echo __arghandle_description (string escape "$description") ";"
     echo __arghandle_separator ";"
     echo __arghandle_title Usage ";"
-    echo __arghandle_usage (string escape "$name {{option ...}}") ";"
+    echo __arghandle_usage (string escape "$name $options_usage") ";"
     echo __arghandle_separator ";"
     echo __arghandle_title Options ";"
 
