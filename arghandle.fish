@@ -887,7 +887,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
                     --arg id "$name" \
                     --arg prefix "$name" \
                     --arg description "$description" \
-                    --arg body "$body" >&2
+                    --arg body "$body"
         end
         return
     end
