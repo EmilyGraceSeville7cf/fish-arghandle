@@ -1019,3 +1019,21 @@ end
 function arg_get_snippet --description 'Call arghandle with --snippet option prepended'
     arghandle --snippet $argv[1] $argv[2..] 2>/dev/null
 end
+
+
+complete --command arghandle --long-option help --description "Print [h]elp"
+complete --command arghandle --long-option name --exclusive --description "Specify a [n]ame of a command for error messages"
+complete --command arghandle --long-option description --exclusive --description "Specify a [d]escription of a command for -h|--help OR for an option"
+complete --command arghandle --long-option exclusive --exclusive --description "Specify [e]xclusive options from option definitions"
+complete --command arghandle --long-option min-args --exclusive --arguments "0\t$arghandle_option_default_suffix" --description "Specify a [m]inimum amount of positional arguments"
+complete --command arghandle --long-option max-args --exclusive --description "Specify a [M]aximum amount of positional arguments"
+complete --command arghandle --long-option completion --exclusive --description "Get a [c]ompletion code instead of one for parsing arguments"
+complete --command arghandle --long-option snippet --exclusive --arguments "code" --description "Get a [s]nippet code instead of one for parsing arguments"
+complete --command arghandle --long-option short --exclusive --description "Specify a [s]hort variant of an option"
+complete --command arghandle --long-option long --exclusive --description "Specify a [l]ong variant of an option"
+complete --command arghandle --long-option flag --description "Specify whether an option is [f]lag and doesn't accept any argument"
+complete --command arghandle --long-option type --exclusive --arguments "int\t'An integer' float\t'A float' bool\t'A boolean' str\t'A string'" --description "Specify a value [t]ype of an option"
+complete --command arghandle --long-option range --exclusive --description "Specify a valid value [R]ange of an option as a number range"
+complete --command arghandle --long-option enum --exclusive --description "Specify a valid value of an option as an [e]num"
+complete --command arghandle --long-option default --exclusive --description "Specify a [d]efault value of an option"
+complete --command arghandle --arguments ":\t'Start option definitions in a simplified syntax' [\t'Start an option definition in a comprehensive syntax' ]\t'End an option definition in a comprehensive syntax'"
