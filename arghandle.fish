@@ -109,6 +109,10 @@ function is_long_option --argument-names value --description 'Checks whether a v
     string match --regex --quiet -- '^--[^- ]{2,}(-[^- ]+)*$' "$value"
 end
 
+function is_option --argument-names value --description 'Checks whether a value is an option'
+    is_short_option "$value" || is_long_option "$value"
+end
+
 function is_option_pair --argument-names value --description 'Checks whether a value is a short/long option pair'
     set --local items (string split -- / "$value")
     is_short_option "-$items[1]" && is_long_option "--$items[2]"
@@ -120,6 +124,13 @@ end
 
 function option_pair_long --argument-names value --description 'Get a long option from a pair'
     is_option_pair "$value" && string replace --regex -- '^./(.*)$' '$1' "$value"
+end
+
+function is_this_option --argument-names short_option long_option value --description 'Check whether an option is a specific one'
+    is_short_option "-$short_option" || return
+    is_long_option "--$long_option" || return
+    is_option "$value" || return
+    string match --regex --quiet -- "^(-$short_option|--$long_option)\$" "$value"
 end
 
 function inferred_type_from_expression --argument-names value --description 'Get an inferred type of a value'
@@ -465,7 +476,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
     set --local get_completion
     set --local get_snippet_for
 
-    if string match --regex --quiet -- '^(-h|--help)$' "$argv[1]"
+    if is_this_option h help "$argv[1]"
         __arghandle_description "Parses arguments and provides automatically generated help available via -h|--help"
         __arghandle_separator
         __arghandle_title Usage
@@ -532,7 +543,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
                 return 1
         end
 
-        not string match --regex --quiet -- '^(-c|--completion)$' "$option"
+        not is_this_option c completion "$option"
         set --local requires_argument "$status"
         test "$requires_argument" -eq 0 && set index (math "$index" + 1)
 
@@ -699,7 +710,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
                     return 1
             end
 
-            not string match --regex --quiet -- '^(-f|--flag)$' "$option"
+            not is_this_option f flag "$option"
             set --local requires_argument "$status"
             if test "$requires_argument" -eq 0 && not set --query argument
                 __arghandle_incorrect_option_empty_value_format_in_definition_error "$option" "$option_index"
