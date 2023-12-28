@@ -127,7 +127,7 @@ and snippet (requested with `--snippet`|`-s` option):
 ## Syntax
 
 ```fish
-__arghandle_usage 'arghandle {{options ...}} {{option_definition ...}}'
+__arghandle_usage 'arghandle {{option ...}} {{option_definition ...}}'
 ```
 
 ### Options (`{{option ...}}`)
