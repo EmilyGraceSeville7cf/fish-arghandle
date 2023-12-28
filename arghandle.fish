@@ -412,7 +412,7 @@ end
 
 # Options in the form of '-o|--option' and placeholders are highlighted.
 function __arghandle_usage --argument-names usage --description "Usage inside 'Usage' section"
-    set --local usage (string replace --all --regex -- '(-[^ =][/|]--[^ =]{2,})' (set_color "$arghandle_option_color")'$1'(set_color normal) "$usage")
+    set --local usage (string replace --all --regex -- '(-[^\[\] =][/|]--[^\[\] =]{2,})' (set_color "$arghandle_option_color")'$1'(set_color normal) "$usage")
     set --local usage (__arghandle_color_placeholder "$usage" int)
     set --local usage (__arghandle_color_placeholder "$usage" float)
     set --local usage (__arghandle_color_placeholder "$usage" bool)
@@ -959,6 +959,8 @@ function arghandle --description 'Parses arguments and provides automatically ge
         end
     end
 
+    set --prepend options_usage "[-h|--help]"
+
     echo argparse --name "$name" "$parse_command" -- '$argv' "||" return ";"
     echo if set --query _flag_h ";"
     echo __arghandle_description (string escape "$description") ";"
@@ -967,6 +969,8 @@ function arghandle --description 'Parses arguments and provides automatically ge
     echo __arghandle_usage (string escape "$name $options_usage") ";"
     echo __arghandle_separator ";"
     echo __arghandle_title Options ";"
+
+    echo __arghandle_option h help "'Print [h]elp'" ";"
 
     set index 1
     while test "$index" -lt "$option_index"
