@@ -405,15 +405,18 @@ function __arghandle_description --argument-names description --description 'The
     echo -e (set_color normal)"$description."
 end
 
+function __arghandle_color_placeholder --argument-names usage type --description 'Colorize placeholders of a specific type'
+    set --local variable "arghandle_"$type"_placeholder_color"
+    string replace --all --regex -- "\{\{([^{}() ]+) \($type\)\}\}" (set_color --bold "$$variable")'{{$1}}'(set_color normal) "$usage"
+end
+
 # Options in the form of '-o|--option' and placeholders are highlighted.
 function __arghandle_usage --argument-names usage --description "Usage inside 'Usage' section"
     set --local usage (string replace --all --regex -- '(-[^ =][/|]--[^ =]{2,})' (set_color "$arghandle_option_color")'$1'(set_color normal) "$usage")
-    set --local usage (string replace --all --regex -- '\{\{([^{}() ]+( \.\.\.)?)\}\}' (set_color "$arghandle_str_placeholder_color")'{{$1}}'(set_color normal) "$usage")
-    set --local usage (string replace --all --regex -- '\{\{([^{}() ]+) \(int\)\}\}' (set_color "$arghandle_int_placeholder_color")'{{$1}}'(set_color normal) "$usage")
-    set --local usage (string replace --all --regex -- '\{\{([^{}() ]+) \(float\)\}\}' (set_color "$arghandle_float_placeholder_color")'{{$1}}'(set_color normal) "$usage")
-    set --local usage (string replace --all --regex -- '\{\{([^{}() ]+) \(bool\)\}\}' (set_color "$arghandle_bool_placeholder_color")'{{$1}}'(set_color normal) "$usage")
-    set --local usage (string replace --all --regex -- '\{\{([^{}() ]+) \(str\)\}\}' (set_color "$arghandle_str_placeholder_color")'{{$1}}'(set_color normal) "$usage")
-
+    set --local usage (__arghandle_color_placeholder "$usage" int)
+    set --local usage (__arghandle_color_placeholder "$usage" float)
+    set --local usage (__arghandle_color_placeholder "$usage" bool)
+    set --local usage (__arghandle_color_placeholder "$usage" str)
     echo -e (set_color normal)"  $usage"
 end
 
