@@ -2,6 +2,7 @@
 
 set --query arghandle_title_color || set arghandle_title_color green
 set --query arghandle_option_color || set arghandle_option_color cyan
+set --query arghandle_placeholder_color || set arghandle_placeholder_color blue
 set --query arghandle_option_mnemonic_color || set arghandle_option_mnemonic_color yellow
 set --query arghandle_option_default_color || set arghandle_option_default_color blue
 set --query arghandle_option_deprecation_notice_color || set arghandle_option_deprecation_notice_color red
@@ -393,33 +394,34 @@ end
 
 
 # Options in the form of '-o/--option' are highlighted with $arghandle_option_color.
-function __arghandle_description --argument-names description --description 'The first line of DocOpt-compatible help'
-    set --local description (string replace --all --regex -- '(-\S[/|]--\S{2,})' (set_color "$arghandle_option_color")'$1'(set_color normal) "$description")
+function __arghandle_description --argument-names description --description 'The first line of help'
+    set --local description (string replace --all --regex -- '(-\S[|]--\S{2,})' (set_color "$arghandle_option_color")'$1'(set_color normal) "$description")
     echo -e (set_color normal)"$description."
 end
 
 # Options in the form of '-o/--option' and '[options]' are highlighted with $arghandle_option_color.
-function __arghandle_usage --argument-names usage --description "DocOpt-compatible usage inside 'Usage' section"
-    set --local usage (string replace --all --regex -- '(-\S[/|]--\S{2,}|\[options\])' (set_color "$arghandle_option_color")'$1'(set_color normal) "$usage")
+function __arghandle_usage --argument-names usage --description "Usage inside 'Usage' section"
+    set --local usage (string replace --all --regex -- '(-\S[/|]--\S{2,})' (set_color "$arghandle_option_color")'$1'(set_color normal) "$usage")
+    set --local usage (string replace --all --regex -- '(\{\{[^{} ]+( \.\.\.)?\}\})' (set_color "$arghandle_placeholder_color")'$1'(set_color normal) "$usage")
     echo -e (set_color normal)"  $usage"
 end
 
 # Titles are highlighted with $arghandle_title_color.
-function __arghandle_title --argument-names title --description 'DocOpt-compatible section title'
+function __arghandle_title --argument-names title --description 'Section title'
     echo -e (set_color "$arghandle_title_color")"$title"(set_color normal)':'
 end
 
 # Options are highlighted with $arghandle_option_color.
 # Mnemonics (square brackets with letters) are highlighted with $arghandle_option_mnemonic_color. They are used to explain
 #   what short options stand for.
-function __arghandle_option --argument-names short long description default --description "DocOpt-compatible option description inside 'Options' section"
+function __arghandle_option --argument-names short long description default --description "Option description inside 'Options' section"
     set --local description (string replace --all --regex -- '(\[[^][ ]\])' (set_color "$arghandle_option_mnemonic_color")'$1'(set_color normal) "$description")
     echo -n -e "  "(set_color "$arghandle_option_color")"-$short --$long"(set_color normal)"  $description"
     test -n "$default" && echo -n " [default: "(set_color $arghandle_option_default_color)$default(set_color normal)"]"
     echo .
 end
 
-function __arghandle_separator --description 'DocOpt-compatible section separator'
+function __arghandle_separator --description 'Section separator'
     echo
 end
 
@@ -427,7 +429,7 @@ function __arghandle_is_non_negative_int --argument-names value
     string match --regex --quiet -- '^\d+$' "$value"
 end
 
-function arghandle --description 'Parses arguments and provides automatically generated help available via -h/--help'
+function arghandle --description 'Parses arguments and provides automatically generated help available via -h|--help'
     set --local name
     set --local description
     set --local exclusive
@@ -450,10 +452,10 @@ function arghandle --description 'Parses arguments and provides automatically ge
     set --local get_snippet_for
 
     if string match --regex --quiet -- '^(-h|--help)$' "$argv[1]"
-        __arghandle_description "Parses arguments and provides automatically generated help available via -h/--help"
+        __arghandle_description "Parses arguments and provides automatically generated help available via -h|--help"
         __arghandle_separator
         __arghandle_title Usage
-        __arghandle_usage "arghandle [-n|--name <value>] [-d|--description <value>] [-e|--exclusive <value>] [-m|--min-args <value>] [-M|--max-args <value>] [options]"
+        __arghandle_usage "arghandle [-n|--name {{value}}] [-d|--description {{value}}] [-e|--exclusive {{value}}] [-m|--min-args {{value}}] [-M|--max-args {{value}}] {{option ...}}"
         __arghandle_separator
         __arghandle_title Options
         __arghandle_option h help "Print [h]elp, to work must be the first option outside of square brackets"
@@ -923,7 +925,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
     echo __arghandle_description (string escape "$description") ";"
     echo __arghandle_separator ";"
     echo __arghandle_title Usage ";"
-    echo __arghandle_usage (string escape "$name [options]") ";"
+    echo __arghandle_usage (string escape "$name {{option ...}}") ";"
     echo __arghandle_separator ";"
     echo __arghandle_title Options ";"
 
