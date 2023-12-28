@@ -147,7 +147,7 @@ function inferred_type --argument-names value --description 'Get an inferred typ
     inferred_type_from_expression "$value"
 end
 
-function inferred_type_from_contraints --argument-names range enum --description 'Get an inferred option type from --range or --enum options'
+function __arghandle_inferred_type_from_contraints --argument-names range enum --description 'Get an inferred option type from --range or --enum options'
     set --local inferred_type str
     if test -n "$range"
         if is_int_range "$range"
@@ -768,7 +768,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
             return 1
         end
 
-        set --local inferred_type (inferred_type_from_contraints "$option_range" "$option_enum")
+        set --local inferred_type (__arghandle_inferred_type_from_contraints "$option_range" "$option_enum")
         test -n "$option_range" || test -n "$option_enum"
         set --local at_least_one_contrains_set "$status"
         if test "$at_least_one_contrains_set" -eq 0
