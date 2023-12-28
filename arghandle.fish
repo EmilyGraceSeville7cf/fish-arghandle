@@ -1000,3 +1000,15 @@ function arghandle --description 'Parses arguments and provides automatically ge
         set index (math "$index" + 1)
     end
 end
+
+function arg_parse --description 'Call arghandle without any additional options added'
+    arghandle $argv 2> /dev/null
+end
+
+function arg_complete --description 'Call arghandle with --complete option prepended'
+    arghandle --complete $argv 2> /dev/null
+end
+
+function arg_get_snippet --description 'Call arghandle with --snippet option prepended'
+    arghandle --snippet $argv[1] $argv[2..] 2> /dev/null
+end
