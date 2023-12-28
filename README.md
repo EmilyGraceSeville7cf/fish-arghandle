@@ -193,3 +193,50 @@ To quicker discover current `arghandle` settings you can use these functions:
 - `arghandle_colors`: Print colors used by `arghandle` function
 - `arghandle_suffixes`: Print suffixes used by `arghandle` function
 - `arghandle_settings`: Print colors and suffixes used by `arghandle` function
+
+## Snippets
+
+These Visual Studio Code snippets can help you to write option definitions faster:
+
+```json
+{
+	"arghandle simple": {
+		"prefix": [
+			"arghandle",
+			"a"
+		],
+		"description": "Simplified 'arghandle' syntax",
+		"body": [
+			"arghandle ${1|--name,-n|} '${2:Specify a [n]ame of a command for error messages (str)}' ${3|--description,-d|} '${4:Specify a [d]escription of a command for -h/--help (str)}' : \\",
+			"\t${5|int,float,bool,str|} ${6:-short-variant}/${7:--long-variant} '${8:option description}'"
+		]
+	},
+	"arghandle comprehensive": {
+		"prefix": [
+			"arghandle-comprehensive",
+			"ac"
+		],
+		"description": "Comprehensive 'arghandle' syntax",
+		"body": [
+			"arghandle ${1|--name,-n|} '${2:Specify a [n]ame of a command for error messages (str)}' ${3|--description,-d|} '${4:Specify a [d]escription of a command for -h/--help (str)}' \\",
+			"\t[ ${5|--description,-d|} '${6:option description (str)}' ${7|--long,-l|} ${8:--long-variant} ${9|--short,-s|} ${10:--short-variant} ${11|--type,-t|} ${12|int,float,bool,str|} ]"
+		]
+	},
+	"arghandle simple definition": {
+		"prefix": [
+			"arghandle-definition",
+			"ad"
+		],
+		"description": "Simplified 'arghandle' definition",
+		"body": "${1|int,float,bool,str|} ${2:-short-variant}/${3:--long-variant} '${4:option description}'"
+	},
+	"arghandle comprehensive definition": {
+		"prefix": [
+			"arghandle-comprehensive-definition",
+			"acd"
+		],
+		"description": "Comprehensive 'arghandle' definition",
+		"body": "[ ${1|--description,-d|} '${2:option description (str)}' ${3|--long,-l|} ${8:--long-variant} ${4|--short,-s|} ${5:--short-variant} ${6|--type,-t|} ${7|int,float,bool,str|} ]"
+	}
+}
+```
