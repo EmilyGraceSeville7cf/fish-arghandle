@@ -1037,3 +1037,7 @@ complete --command arghandle --long-option range --exclusive --description "Spec
 complete --command arghandle --long-option enum --exclusive --description "Specify a valid value of an option as an [e]num"
 complete --command arghandle --long-option default --exclusive --description "Specify a [d]efault value of an option"
 complete --command arghandle --arguments ":\t'Start option definitions in a simplified syntax' [\t'Start an option definition in a comprehensive syntax' ]\t'End an option definition in a comprehensive syntax'"
+
+complete --command arg_parse --wraps arghandle
+complete --command arg_complete --wraps arghandle
+complete --command arg_get_snippet --wraps arghandle
