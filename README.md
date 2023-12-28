@@ -89,7 +89,7 @@ The latter syntax allows provide more details about each available option, like 
 
 While `arghandle` parses incoming arguments for `search_book` and prints automatically generated help:
 
-```markdown
+```text
 Function to search books in an online book store.
 
 Usage:
