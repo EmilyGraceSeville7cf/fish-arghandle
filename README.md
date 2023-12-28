@@ -229,12 +229,12 @@ These Visual Studio Code snippets can help you to write option definitions faste
     "arghandle simple range definition": {
         "prefix": ["arghandle-range-definition", "ard"],
         "description": "Simplified 'arghandle' range definition",
-        "body": "${1:from}..${2:to} ${3:-short-variant}/${4:--long-variant} '${5:option description}'"
+        "body": "${1:from (int|float)}..${2:to (int|float)} ${3:-short-variant}/${4:--long-variant} '${5:option description (str)}'"
     },
     "arghandle comprehensive range definition": {
         "prefix": ["arghandle-comprehensive-range-definition", "acrd"],
         "description": "Comprehensive 'arghandle' range definition",
-        "body": "[ ${1|--description,-d|} '${2:option description (str)}' ${3|--long,-l|} ${4:--long-variant} ${5|--short,-s|} ${6:--short-variant} ${7|--range,-R|} ${8:from}..${9:to} ]"
+        "body": "[ ${1|--description,-d|} '${2:option description (str)}' ${3|--long,-l|} ${4:--long-variant} ${5|--short,-s|} ${6:--short-variant} ${7|--range,-R|} ${8:from (int|float)}..${9:to (int|float)} ]"
     }
 }
 ```
