@@ -93,13 +93,13 @@ While `arghandle` parses incoming arguments for `search_book` and prints automat
 Function to search books in an online book store.
 
 Usage:
-  search_book [options]
+  search_book -a|--author={{value}} -b|--book={{value}} -f|--from={{value}} -t|--to={{value}}
 
 Options:
   -a --author  A book [a]uthor to search.
   -b --book  A [b]ook to search.
   -f --from  A book page to show [f]rom.
-  -t --to  A book page to show up [t]o
+  -t --to  A book page to show up [t]o.
 ```
 
 when requested with `--help`|`-h` option it also provides completion (requested with `--completion`|`-c` option):
