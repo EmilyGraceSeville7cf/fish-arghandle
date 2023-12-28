@@ -10,6 +10,7 @@ eval (arghandle {{option ...}})
 
 - :white_check_mark: One option specification for all kind of things like help, completions and snippets.
 - :white_check_mark: Better type-safety, no need to check whether some argument in a specific range/enum or of some type manually.
+- :negative_squared_cross_mark: Syntax may be more complicated than for `argparse` and `complete`, but we are working on improving it.
 
 ## Introduction example
 
