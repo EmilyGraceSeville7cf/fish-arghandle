@@ -10,9 +10,21 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - name: Checkout repository
+      - name: Checkout the repository
         uses: actions/checkout@v4
       - name: Install Fish shell
         uses: fish-actions/install-fish@v1.1.0
       - name: Check Fish scripts
         run: fish --no-execute *.fish
+
+  check-documentation:
+    name: Check documentation
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+      - name: Install Markdown linter
+        run: npm install --global markdownlint
+      - name: Check Markdown files
+        run: markdownlint *.md
