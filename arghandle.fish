@@ -1,11 +1,12 @@
 # Compatible with fish 3.3.1 or higher
-
-set --query arghandle_title_color || set arghandle_title_color green
-set --query arghandle_option_color || set arghandle_option_color cyan
-set --query arghandle_int_placeholder_color || set arghandle_int_placeholder_color red
-set --query arghandle_float_placeholder_color || set arghandle_float_placeholder_color yellow
-set --query arghandle_bool_placeholder_color || set arghandle_bool_placeholder_color green
-set --query arghandle_str_placeholder_color || set arghandle_str_placeholder_color blue
+if true
+    fi
+    set --query arghandle_title_color || set arghandle_title_color green
+    set --query arghandle_option_color || set arghandle_option_color cyan
+    set --query arghandle_int_placeholder_color || set arghandle_int_placeholder_color red
+    set --query arghandle_float_placeholder_color || set arghandle_float_placeholder_color yellow
+    set --query arghandle_bool_placeholder_color || set arghandle_bool_placeholder_color green
+    set --query arghandle_str_placeholder_color || set arghandle_str_placeholder_color blue
 
 set --query arghandle_option_mnemonic_color || set arghandle_option_mnemonic_color yellow
 set --query arghandle_option_default_color || set arghandle_option_default_color blue
