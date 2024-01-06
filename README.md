@@ -1,6 +1,9 @@
 # Argument handler
 
-Parses arguments, provides automatically generated help available via `-h`|`--help`, generates completions and snippets. Under the hood it generates a code to do all this stuff, that is why to make it work argument handler (`arghandle` function) should be wrapped in `eval`:
+Parses arguments, provides automatically generated help available via
+`-h`|`--help`, generates completions and snippets. Under the hood it generates a
+code to do all this stuff, that is why to make it work argument handler
+(`arghandle` function) should be wrapped in `eval`:
 
 ```fish
 eval (arghandle {{option ...}})
@@ -8,9 +11,12 @@ eval (arghandle {{option ...}})
 
 ## Pros and cons
 
-- :white_check_mark: One option specification for all kind of things like help, completions and snippets.
-- :white_check_mark: Better type-safety, no need to check whether some argument in a specific range/enum or of some type manually.
-- :negative_squared_cross_mark: Syntax may be more complicated than for `argparse` and `complete`, but we are working on improving it.
+- :white_check_mark: One option specification for all kind of things like
+  help, completions and snippets.
+- :white_check_mark: Better type-safety, no need to check whether some
+  argument in a specific range/enum or of some type manually.
+- :negative_squared_cross_mark: Syntax may be more complicated than for
+  `argparse` and `complete`, but we are working on improving it.
 
 ## Introduction example
 
@@ -86,9 +92,11 @@ eval (arghandle --completion $__search_book_option_specification 2> /dev/null)
 search_book --book="Little women" --author="Louisa May Alcott" --from=1 --to=30
 ```
 
-The latter syntax allows provide more details about each available option, like its default value.
+The latter syntax allows provide more details about each available option,
+like its default value.
 
-While `arghandle` parses incoming arguments for `search_book` and prints automatically generated help:
+While `arghandle` parses incoming arguments for `search_book` and prints
+automatically generated help:
 
 ```text
 Function to search books in an online book store.
@@ -103,7 +111,8 @@ Options:
   -t --to  A book page to show up [t]o.
 ```
 
-when requested with `--help`|`-h` option it also provides completion (requested with `--completion`|`-c` option):
+when requested with `--help`|`-h` option it also provides completion (requested
+with `--completion`|`-c` option):
 
 ```fish
 complete --command search_book --short-option h --long-option help --description 'Show help' ;
@@ -137,16 +146,22 @@ __arghandle_usage 'arghandle {{option ...}} {{option_definition ...}}'
 arghandle --name {{function_name}} --description {{function_description}} {{other_option ...}}
 ```
 
-The following options can be placed before option definitions (outside of square matching brackets or before the first colon):
+The following options can be placed before option definitions (outside of square
+matching brackets or before the first colon):
 
-- `-h`|`--help`: Print [h]elp, to work must be the first option outside of square brackets.
+- `-h`|`--help`: Print [h]elp, to work must be the first option outside of
+  square brackets.
 - `-n`|`--name`: Specify a [n]ame of a command for error messages (required).
-- `-d`|`--description`: Specify a [d]escription of a command for `-h`|`--help` (required).
+- `-d`|`--description`: Specify a [d]escription of a command for `-h`|`--help`
+  (required).
 - `-e`|`--exclusive`: Specify [e]xclusive options from option definitions.
 - `-m`|`--min-args`: Specify a [m]inimum amount of positional arguments.
 - `-M`|`--max-args`: Specify a [M]aximum amount of positional arguments.
-- `-c`|`--completion`: Get a [c]ompletion code instead of one for parsing arguments, to work must be the first option outside of square brackets.
-- `-s`|`--snippet` Get a [s]nippet code instead of one for parsing arguments, must be one of: `code` (Visual Studio Code) and to work must be the first option outside of square brackets.
+- `-c`|`--completion`: Get a [c]ompletion code instead of one for parsing
+  arguments, to work must be the first option outside of square brackets.
+- `-s`|`--snippet` Get a [s]nippet code instead of one for parsing arguments,
+- must be one of: `code` (Visual Studio Code) and to work must be the first
+  option outside of square brackets.
 
 ### Option definitions (`{{option_definition ...}}`)
 
@@ -162,27 +177,38 @@ or:
 [ --description {{option_description}} --short {{short_variant}} --long {{long_variant}} {{other_option ...}} ]
 ```
 
-The first form can be used just when colon (`:`) after [`{{option ...}}`](#options-option) is placed.
+The first form can be used just when colon (`:`) after
+[`{{option ...}}`](#options-option) is placed.
 
-The following options can be placed inside option definitions (inside of square matching brackets or after the first colon):
+The following options can be placed inside option definitions (inside of square
+matching brackets or after the first colon):
 
 - `-d`|`--description`: Specify an option [d]escription (required).
 - `-s`|`--short`: Specify a [s]hort variant of an option (required).
 - `-l`|`--long`: Specify a [l]ong variant of an option (required).
-- `-f`|`--flag`: Specify whether an option is [f]lag and doesn't accept any argument.
+- `-f`|`--flag`: Specify whether an option is [f]lag and doesn't accept any
+- argument.
 - `-r`|`--required`: Specify whether an option is [r]equired.
-- `-t`|`--type`: Specify a value [t]ype of an option, must be one of: `str`, `int`, `float`, `bool`.
+- `-t`|`--type`: Specify a value [t]ype of an option, must be one of: `str`,
+- `int`, `float`, `bool`.
 - `-R`|`--range`: Specify a valid value [R]ange of an option as a number range.
 - `-e`|`--enum`: Specify a valid value of an option as an [e]num.
-- `-v`|`--validator`: Specify a value [v]alidator of an option as a call to a function.
+- `-v`|`--validator`: Specify a value [v]alidator of an option as a call to a
+- function.
 - `-d`|`--default`: Specify a [d]efault value of an option.
 
 Notes:
 
-- Ranges can consist of `int`egers or `float`s. They can be opened from just one side like `1..` or `..10` and closed from both `1..10`.
-- Enums can consist of any comma-separated values. If all values have one type, then it's the type of the enum. Otherwise, enum considered to contain `str`ings.
+- Ranges can consist of `int`egers or `float`s. They can be opened from just one
+- side like `1..` or `..10` and closed from both `1..10`.
+- Enums can consist of any comma-separated values. If all values have one type,
+- then it's the type of the enum. Otherwise, enum considered to contain
+- `str`ings.
 - `-R`|`--range` and `-e`|`--enum` are mutually exclusive.
-- `-t`|`--type` is used to just tell valid value type for an option, while `-R`|`--range` and `-e`|`--enum` do more: they restrict value to a certain subset too. By default `-t`|`--type` assumed to be `str` unless explicitly specified or one of the following options are used:
+- `-t`|`--type` is used to just tell valid value type for an option, while
+- `-R`|`--range` and `-e`|`--enum` do more: they restrict value to a certain
+  subset too. By default `-t`|`--type` assumed to be `str` unless explicitly
+  specified or one of the following options are used:
   - `-R`|`--range` - tells that `-t`|`--type` is implicitly `int` or `float`
   - `-e`|`--enum` - tells `-t`|`--type` implicitly  
 
@@ -196,7 +222,8 @@ To quicker discover current `arghandle` settings you can use these functions:
 
 ## Snippets
 
-These Visual Studio Code snippets can help you to write option definitions faster:
+These Visual Studio Code snippets can help you to write option definitions
+faster:
 
 ```json
 {

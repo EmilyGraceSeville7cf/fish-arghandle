@@ -1,0 +1,46 @@
+name: CI
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check-scripts:
+    name: Check scripts
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+      - name: Install Fish shell
+        uses: fish-actions/install-fish@v1.1.0
+      - name: Check Fish scripts
+        run: fish --no-execute *.fish
+
+  check-configurations:
+    name: Check configurations
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+      - name: Install JSON linter
+        run: npm install --global jsonlint
+      - name: Install YAML linter
+        run: pip3 install --user yamllint
+      - name: Check JSON files
+        run: jsonlint .vscode/*.json
+      - name: Check YAML files
+        run: yamllint .github/workflows/*.yml
+
+  check-documentation:
+    name: Check documentation
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+      - name: Install Markdown linter
+        run: npm install --global markdownlint-cli
+      - name: Check Markdown files
+        run: markdownlint *.md
