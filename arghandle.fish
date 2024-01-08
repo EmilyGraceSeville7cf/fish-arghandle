@@ -298,6 +298,35 @@ function enum_to_str --argument-names enum --description 'Convert an enum to a s
     test "$count" -gt 1 && echo -n " and $items[$count]"
 end
 
+function range_to_markdown_str --argument-names range --description 'Convert a range to a Markdown string'
+    is_range "$range" || return
+
+    set --local start (range_start "$range")
+    set --local end (range_end "$range")
+
+    test -z "$start" && set start -infinity
+    test -z "$end" && set end infinity
+
+    echo "**range**: `[$start..$end]`"
+end
+
+function enum_to_markdown_str --argument-names enum --description 'Convert an enum to a Markdown string'
+    is_enum "$enum" || return
+    echo -n "**enumeration**: "
+    set --local items (string split -- , "$enum")
+    set --local count (count $items)
+
+    echo -n "`$items[1]`"
+
+    set --local index 2
+    while test "$index" -lt "$count"
+        echo -n ", `$items[$index]`"
+        set index (math "$index" + 1)
+    end
+
+    test "$count" -gt 1 && echo -n " and `$items[$count]`"
+end
+
 
 function __arghandle_error --argument-names expected found
     if test -n "$found"
@@ -459,9 +488,17 @@ function __arghandle_markdown_usage --argument-names usage --description "Usage 
     echo -e (set_color normal)"$usage."
 end
 
-function __arghandle_markdown_option --argument-names short long description default --description "Option description inside 'Options' section"
+function __arghandle_markdown_option --argument-names short long description default range enum --description "Option description inside 'Options' section"
     echo -n -e "- `-$short`|`--$long`: $description"
-    test -n "$default" && echo -n " [**default**: `$default`]"
+    if test -n "$default" || test -n "$range" || test -n "$enum"
+        echo -n " ["
+        set --local constraints
+        test -n "$default" && set --append constraints "**default**: `$default`"
+        test -n "$range" && set --append constraints (range_to_markdown_str "$range")
+        test -n "$enum" && set --append constraints (enum_to_markdown_str "$enum")
+        echo -n (string join ", " $constraints)
+        echo -n "]"
+    end
     echo .
 end
 
@@ -943,8 +980,11 @@ function arghandle --description 'Parses arguments and provides automatically ge
             set --local long_option "$long_options[$index]"
             set --local option_description "$options_description[$index]"
             set --local option_default "$options_default[$index]"
+            set --local option_range "$options_range[$index]"
+            set --local option_enum "$options_enum[$index]"
 
-            __arghandle_markdown_option "$short_option" "$long_option" "$option_description" "$option_default"
+            __arghandle_markdown_option "$short_option" "$long_option" "$option_description" \
+                "$option_default" "$option_range" "$option_enum"
 
             set index (math "$index" + 1)
         end
