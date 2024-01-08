@@ -18,39 +18,63 @@ set --query arghandle_option_max_suffix || set arghandle_option_max_suffix max
 set --query arghandle_option_usage_max_count || set arghandle_option_usage_max_count 5
 
 
-function is_int --argument-names value --description 'Checks whether a value is an int'
+function is_int --argument-names value --description 'Check whether a value is an int'
     string match --regex --quiet -- '^-?\d+$' "$value"
 end
 
-function is_float --argument-names value --description 'Checks whether a value is a float'
+function is_float --argument-names value --description 'Check whether a value is a float'
     string match --regex --quiet -- '^-?\d+\.\d+$' "$value"
 end
 
-function is_bool --argument-names value --description 'Checks whether a value is a bool'
+function is_bool --argument-names value --description 'Check whether a value is a bool'
     string match --regex --quiet -- '^(true|false)$' "$value"
 end
 
-function is_str --argument-names value --description 'Checks whether a value is a str'
+function is_str --argument-names value --description 'Check whether a value is a str'
     not is_int "$value" && not is_float "$value" && not is_bool "$value"
 end
 
-function is_int_range --argument-names value --description 'Checks whether a value is an int range'
-    string match --regex --quiet -- '^(-?\d+\.\.|\.\.-?\d+|-?\d+\.\.-?\d+)$' "$value" || return
-    set borders (string split -- .. "$value")
-    if test -n "$borders[1]" && test -n "$borders[2]"
-        test "$borders[1]" -le "$borders[2]"
+function is_nullable_int --argument-names value --description 'Check whether a value is an int or nothing'
+    is_int "$value" || test -z "$value"
+end
+
+function is_nullable_float --argument-names value --description 'Check whether a value is a float or nothing'
+    is_float "$value" || test -z "$value"
+end
+
+function is_nullable_bool --argument-names value --description 'Check whether a value is a bool or nothing'
+    is_bool "$value" || test -z "$value"
+end
+
+function is_int_range --argument-names value --description 'Check whether a value is an int range'
+    set --local borders (string split -- .. "$value")
+    set --local start "$borders[1]"
+    set --local end "$borders[2]"
+
+    is_nullable_int "$start" || return
+    is_nullable_int "$end" || return
+    test -z "$start" && test -z "$end" && return 1
+
+    if test -n "$start" && test -n "$end"
+        test "$start" -le "$end"
     end
 end
 
-function is_float_range --argument-names value --description 'Checks whether a value is a float range'
-    string match --regex --quiet -- '^(-?\d+\.\d+\.\.|\.\.-?\d+\.\d+|-?\d+\.\d+\.\.-?\d+\.\d+)$' "$value" || return
-    set borders (string split -- .. "$value")
-    if test -n "$borders[1]" && test -n "$borders[2]"
-        test "$borders[1]" -le "$borders[2]"
+function is_float_range --argument-names value --description 'Check whether a value is a float range'
+    set --local borders (string split -- .. "$value")
+    set --local start "$borders[1]"
+    set --local end "$borders[2]"
+
+    is_nullable_float "$start" || return
+    is_nullable_float "$end" || return
+    test -z "$start" && test -z "$end" && return 1
+
+    if test -n "$start" && test -n "$end"
+        test "$start" -le "$end"
     end
 end
 
-function is_range --argument-names value --description 'Checks whether a value is a range'
+function is_range --argument-names value --description 'Check whether a value is a range'
     is_int_range "$value" || is_float_range "$value"
 end
 
