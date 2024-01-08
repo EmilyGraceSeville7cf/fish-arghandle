@@ -450,6 +450,25 @@ function __arghandle_separator --description 'Section separator'
     echo
 end
 
+function __arghandle_markdown_title --argument-names title --description 'Section title'
+    echo -e (set_color normal)"# $title"
+end
+
+function __arghandle_markdown_usage --argument-names usage --description "Usage inside 'Usage' section"
+    set --local usage (string replace --all --regex -- '(-[^\[\] =][/|]--[^\[\] =]{2,})' '`$1`' "$usage")
+    echo -e (set_color normal)"$usage."
+end
+
+function __arghandle_markdown_option --argument-names short long description default --description "Option description inside 'Options' section"
+    echo -n -e "- `-$short`|`--$long`: $description"
+    test -n "$default" && echo -n " [**default**: `$default`]"
+    echo .
+end
+
+function __arghandle_markdown_separator --description 'Section separator'
+    echo
+end
+
 function __arghandle_is_non_negative_int --argument-names value
     string match --regex --quiet -- '^\d+$' "$value"
 end
@@ -475,6 +494,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
 
     set --local get_completion
     set --local get_snippet_for
+    set --local get_markdown
 
     if is_this_option h help "$argv[1]"
         __arghandle_description "Parses arguments and provides automatically generated help available via -h|--help"
@@ -491,6 +511,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
         __arghandle_option M max-args "Specify a [M]aximum amount of positional arguments" infinity
         __arghandle_option c completion "Get a [c]ompletion code instead of one for parsing arguments"
         __arghandle_option s snippet "Get a [s]nippet code instead of one for parsing arguments, must be one of: code (Visual Studio Code)"
+        __arghandle_option a markdown "Get a m[a]rkdown code instead of one for parsing arguments"
         __arghandle_option d description "Specify an option [d]escription"
         __arghandle_option s short "Specify a [s]hort variant of an option"
         __arghandle_option l long "Specify a [l]ong variant of an option"
@@ -538,12 +559,16 @@ function arghandle --description 'Parses arguments and provides automatically ge
                 set get_snippet_for "$argument"
             case --snippet
                 set get_snippet_for "$argument"
+            case -a
+                set get_markdown true
+            case --markdown
+                set get_markdown true
             case '*'
                 __arghandle_incorrect_option_out_of_definition_error "$option"
                 return 1
         end
 
-        not is_this_option c completion "$option"
+        not is_this_option c completion "$option" && not is_this_option a markdown "$option"
         set --local requires_argument "$status"
         test "$requires_argument" -eq 0 && set index (math "$index" + 1)
 
@@ -904,6 +929,26 @@ function arghandle --description 'Parses arguments and provides automatically ge
                     --arg body "$body"
         end
         return
+    else if test -n "$get_markdown"
+        __arghandle_markdown_title "`$name` function"
+        __arghandle_markdown_usage "$description"
+        __arghandle_markdown_separator
+
+        __arghandle_markdown_title Options
+        __arghandle_markdown_option h help 'Print [h]elp'
+
+        set index 1
+        while test "$index" -lt "$option_index"
+            set --local short_option "$short_options[$index]"
+            set --local long_option "$long_options[$index]"
+            set --local option_description "$options_description[$index]"
+            set --local option_default "$options_default[$index]"
+
+            __arghandle_markdown_option "$short_option" "$long_option" "$option_description" "$option_default"
+
+            set index (math "$index" + 1)
+        end
+        return
     end
 
     set --local generated_option_specification h/help
@@ -1031,6 +1076,10 @@ function arg_get_snippet --description 'Call arghandle with --snippet option pre
     arghandle --snippet $argv[1] $argv[2..] 2>/dev/null
 end
 
+function arg_markdown --description 'Call arghandle with --markdown option prepended'
+    arghandle --markdown $argv 2>/dev/null
+end
+
 
 complete --command arghandle --long-option help --description "Print [h]elp"
 complete --command arghandle --long-option name --exclusive --description "Specify a [n]ame of a command for error messages"
@@ -1039,7 +1088,7 @@ complete --command arghandle --long-option exclusive --exclusive --description "
 complete --command arghandle --long-option min-args --exclusive --arguments "0\t$arghandle_option_default_suffix" --description "Specify a [m]inimum amount of positional arguments"
 complete --command arghandle --long-option max-args --exclusive --description "Specify a [M]aximum amount of positional arguments"
 complete --command arghandle --long-option completion --exclusive --description "Get a [c]ompletion code instead of one for parsing arguments"
-complete --command arghandle --long-option snippet --exclusive --arguments "code" --description "Get a [s]nippet code instead of one for parsing arguments"
+complete --command arghandle --long-option snippet --exclusive --arguments code --description "Get a [s]nippet code instead of one for parsing arguments"
 complete --command arghandle --long-option short --exclusive --description "Specify a [s]hort variant of an option"
 complete --command arghandle --long-option long --exclusive --description "Specify a [l]ong variant of an option"
 complete --command arghandle --long-option flag --description "Specify whether an option is [f]lag and doesn't accept any argument"
