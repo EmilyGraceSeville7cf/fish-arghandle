@@ -92,7 +92,7 @@ function is_enum --argument-names value --description 'Checks whether a value is
     test (count $items) -eq (count (echo "$items" | string split -- " " | sort --unique))
 end
 
-function is_int_enum --argument-names value --description 'Checks whether a value is an int enum'
+function is_int_enum --argument-names value --description 'Check whether a value is an int enum'
     is_enum "$value" || return
     set --local items (string split -- , "$value")
     for item in $items
@@ -100,7 +100,7 @@ function is_int_enum --argument-names value --description 'Checks whether a valu
     end
 end
 
-function is_float_enum --argument-names value --description 'Checks whether a value is a float enum'
+function is_float_enum --argument-names value --description 'Check whether a value is a float enum'
     is_enum "$value" || return
     set --local items (string split -- , "$value")
     for item in $items
@@ -108,7 +108,7 @@ function is_float_enum --argument-names value --description 'Checks whether a va
     end
 end
 
-function is_bool_enum --argument-names value --description 'Checks whether a value is a bool enum'
+function is_bool_enum --argument-names value --description 'Check whether a value is a bool enum'
     is_enum "$value" || return
     set --local items (string split -- , "$value")
     for item in $items
@@ -116,28 +116,28 @@ function is_bool_enum --argument-names value --description 'Checks whether a val
     end
 end
 
-function is_str_enum --argument-names value --description 'Checks whether a value is a str enum'
+function is_str_enum --argument-names value --description 'Check whether a value is a str enum'
     is_enum "$value" || return
     not is_int_enum "$value" && not is_float_enum "$value" && not is_bool_enum "$value"
 end
 
-function is_type --argument-names value --description 'Checks whether a value is a type'
+function is_type --argument-names value --description 'Check whether a value is a type'
     string match --regex --quiet -- '^(int|float|bool|str)$' "$value"
 end
 
-function is_short_option --argument-names value --description 'Checks whether a value is a short option'
+function is_short_option --argument-names value --description 'Check whether a value is a short option'
     string match --regex --quiet -- '^-[^- ]$' "$value"
 end
 
-function is_long_option --argument-names value --description 'Checks whether a value is a long option'
+function is_long_option --argument-names value --description 'Check whether a value is a long option'
     string match --regex --quiet -- '^--[^- ]{2,}(-[^- ]+)*$' "$value"
 end
 
-function is_option --argument-names value --description 'Checks whether a value is an option'
+function is_option --argument-names value --description 'Check whether a value is an option'
     is_short_option "$value" || is_long_option "$value"
 end
 
-function is_option_pair --argument-names value --description 'Checks whether a value is a short/long option pair'
+function is_option_pair --argument-names value --description 'Check whether a value is a short/long option pair'
     set --local items (string split -- / "$value")
     is_short_option "-$items[1]" && is_long_option "--$items[2]"
 end
