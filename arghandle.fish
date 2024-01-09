@@ -336,8 +336,44 @@ function is_in_str_enum --argument-names enum value --description 'Check whether
     return 1
 end
 
+function is_in_nullable_int_enum --argument-names enum value --description 'Check whether a value in a nullable int enum'
+    is_nullable_int_enum "$enum" || return
+    is_nullable_int "$value" || return
+
+    set --local items (string split -- , "$enum")
+    for item in $items
+        test "$item" -eq "$value" && return
+    end
+
+    return 1
+end
+
+function is_in_nullable_float_enum --argument-names enum value --description 'Check whether a value in a nullable float enum'
+    is_nullable_float_enum "$enum" || return
+    is_nullable_float "$value" || return
+
+    set --local items (string split -- , "$enum")
+    for item in $items
+        test "$item" -eq "$value" && return
+    end
+
+    return 1
+end
+
+function is_in_nullable_bool_enum --argument-names enum value --description 'Check whether a value in a nullable bool enum'
+    is_nullable_bool_enum "$enum" || return
+    is_nullable_bool "$value" || return
+
+    set --local items (string split -- , "$enum")
+    for item in $items
+        test "$item" = "$value" && return
+    end
+
+    return 1
+end
+
 function is_in_enum --argument-names enum value --description 'Check whether a value in an enum'
-    is_in_int_enum "$enum" "$value" || is_in_float_enum "$enum" "$value" || is_in_bool_enum "$enum" "$value" || is_in_str_enum "$enum" "$value"
+    is_in_int_enum "$enum" "$value" || is_in_float_enum "$enum" "$value" || is_in_bool_enum "$enum" "$value" || is_in_str_enum "$enum" "$value" || is_in_nullable_int_enum "$enum" "$value" || is_in_nullable_float_enum "$enum" "$value" || is_in_nullable_bool_enum "$enum" "$value"
 end
 
 function range_to_str --argument-names range --description 'Convert a range to a string'
