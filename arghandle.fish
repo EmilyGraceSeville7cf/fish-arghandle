@@ -188,23 +188,37 @@ function is_this_option --argument-names short_option long_option value --descri
     string match --regex --quiet -- "^(-$short_option|--$long_option)\$" "$value"
 end
 
-function inferred_type_from_expression --argument-names value --description 'Get an inferred type of a value'
-    set --local inferred_type str
+function __arghandle_inferred_type_from_expression --argument-names value --description 'Get an inferred type of a value'
+    set --local inferred_type
     if is_int_range "$value"
         set inferred_type int
     else if is_float_range "$value"
         set inferred_type float
-    else if is_bool_enum "$value"
-        set inferred_type bool
     else if is_int_enum "$value"
         set inferred_type int
     else if is_float_enum "$value"
         set inferred_type float
+    else if is_bool_enum "$value"
+        set inferred_type float
+    else if is_str_enum "$value"
+        set inferred_type str
+    else
+        return 1
     end
     echo "$inferred_type"
 end
 
-function inferred_type --argument-names value --description 'Get an inferred type of a value'
+# Used to allow specify either type explicitly or an expression which type is
+# inferred from. To use type name as an enum value prepend "@" symbol.
+# To add first literal leading "@" symbol duplicate it twice like "@@str" to
+# make enum contain "@str" value.
+function __arghandle_inferred_type --argument-names value --description 'Get an inferred type of a value'
+    if string match --quiet '@*' -- "$value"
+        set --local value (string replace --regex -- '^@(.*)$' '$1' "$value")
+        inferred_type_from_expression "$value"
+        return
+    end
+
     if is_type "$value"
         echo "$value"
         return
@@ -222,13 +236,17 @@ function __arghandle_inferred_type_from_contraints --argument-names range enum -
             set inferred_type float
         end
     else if test -n "$enum"
-        if is_bool_enum "$enum"
-            set inferred_type bool
-        else if is_int_enum "$enum"
+        if is_int_enum "$enum"
             set inferred_type int
         else if is_float_enum "$enum"
             set inferred_type float
+        else if is_bool_enum "$enum"
+            set inferred_type bool
+        else if is_str_enum "$enum"
+            set inferred_type str
         end
+    else
+        return 1
     end
 
     echo "$inferred_type"
