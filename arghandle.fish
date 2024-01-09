@@ -86,39 +86,70 @@ function range_end --argument-names value --description 'Get a highest range val
     is_range "$value" && string match --regex -- '-?\d+(?:\.\d+)?$' "$value"
 end
 
-function is_enum --argument-names value --description 'Checks whether a value is an enum'
-    string match --regex --quiet -- '^[^, ]+(,[^, ]+)*$' "$value" || return
-    set --local items (string split -- , "$value")
-    test (count $items) -eq (count (echo "$items" | string split -- " " | sort --unique))
+function are_unique_items --description 'Check whether all items are unique'
+    set --local initial_count (count $argv)
+    set --local deduplicated_count (count (echo "$argv" | string split -- " " | sort --unique))
+    test "$initial_count" -eq "$deduplicated_count"
 end
 
 function is_int_enum --argument-names value --description 'Check whether a value is an int enum'
-    is_enum "$value" || return
     set --local items (string split -- , "$value")
+    are_unique_items $items || return
     for item in $items
         is_int "$item" || return
     end
 end
 
 function is_float_enum --argument-names value --description 'Check whether a value is a float enum'
-    is_enum "$value" || return
     set --local items (string split -- , "$value")
+    are_unique_items $items || return
     for item in $items
         is_float "$item" || return
     end
 end
 
 function is_bool_enum --argument-names value --description 'Check whether a value is a bool enum'
-    is_enum "$value" || return
     set --local items (string split -- , "$value")
+    are_unique_items $items || return
     for item in $items
         is_bool "$item" || return
     end
 end
 
 function is_str_enum --argument-names value --description 'Check whether a value is a str enum'
-    is_enum "$value" || return
-    not is_int_enum "$value" && not is_float_enum "$value" && not is_bool_enum "$value"
+    set --local items (string split -- , "$value")
+    are_unique_items $items || return
+    for item in $items
+        is_str "$item" || return
+    end
+end
+
+function is_nullable_int_enum --argument-names value --description 'Check whether a value is a nullable int enum'
+    set --local items (string split -- , "$value")
+    are_unique_items $items || return
+    for item in $items
+        is_nullable_int "$item" || return
+    end
+end
+
+function is_nullable_float_enum --argument-names value --description 'Check whether a value is a nullable float enum'
+    set --local items (string split -- , "$value")
+    are_unique_items $items || return
+    for item in $items
+        is_nullable_float "$item" || return
+    end
+end
+
+function is_nullable_bool_enum --argument-names value --description 'Check whether a value is a nullable bool enum'
+    set --local items (string split -- , "$value")
+    are_unique_items $items || return
+    for item in $items
+        is_nullable_bool "$item" || return
+    end
+end
+
+function is_enum --argument-names value --description 'Check whether a value is an enum'
+    is_int_enum "$value" || is_float_enum "$value" || is_bool_enum "$value" || is_str_enum "$value" || is_nullable_int_enum "$value" || is_nullable_float_enum "$value" || is_nullable_bool_enum "$value"
 end
 
 function is_type --argument-names value --description 'Check whether a value is a type'
