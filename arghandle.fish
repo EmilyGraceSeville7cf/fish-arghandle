@@ -1223,7 +1223,7 @@ function arg_parse --description 'Call arghandle without any additional options 
     end
 end
 
-function arg_complete --description 'Call arghandle with --complete option prepended'
+function arg_completion --description 'Call arghandle with --complete option prepended'
     if test -n "$arghandle_suppress_errors"
         arghandle --completion $argv 2>/dev/null
     else
@@ -1231,7 +1231,7 @@ function arg_complete --description 'Call arghandle with --complete option prepe
     end
 end
 
-function arg_get_snippet --description 'Call arghandle with --snippet option prepended'
+function arg_snippet --description 'Call arghandle with --snippet option prepended'
     if test -n "$arghandle_suppress_errors"
         arghandle --snippet $argv[1] $argv[2..] 2>/dev/null
     else
@@ -1266,5 +1266,6 @@ complete --command arghandle --long-option default --exclusive --description "Sp
 complete --command arghandle --arguments ":\t'Start option definitions in a simplified syntax' [\t'Start an option definition in a comprehensive syntax' ]\t'End an option definition in a comprehensive syntax'"
 
 complete --command arg_parse --wraps arghandle
-complete --command arg_complete --wraps arghandle
-complete --command arg_get_snippet --wraps arghandle
+complete --command arg_completion --wraps arghandle
+complete --command arg_snippet --wraps arghandle
+complete --command arg_markdown --wraps arghandle
