@@ -1225,9 +1225,9 @@ end
 
 function arg_complete --description 'Call arghandle with --complete option prepended'
     if test -n "$arghandle_suppress_errors"
-        arghandle --complete $argv 2>/dev/null
+        arghandle --completion $argv 2>/dev/null
     else
-        arghandle --complete $argv
+        arghandle --completion $argv
     end
 end
 
