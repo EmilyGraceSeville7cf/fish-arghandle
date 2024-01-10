@@ -1,5 +1,7 @@
 # Compatible with fish 3.3.1 or higher
 
+set --query arghandle_suppress_errors || set arghandle_suppress_errors
+
 set --query arghandle_title_color || set arghandle_title_color green
 set --query arghandle_option_color || set arghandle_option_color cyan
 set --query arghandle_int_placeholder_color || set arghandle_int_placeholder_color red
@@ -1214,19 +1216,35 @@ function arghandle --description 'Parses arguments and provides automatically ge
 end
 
 function arg_parse --description 'Call arghandle without any additional options added'
-    arghandle $argv 2>/dev/null
+    if test -n "$arghandle_suppress_errors"
+        arghandle $argv 2>/dev/null
+    else
+        arghandle $argv
+    end
 end
 
 function arg_complete --description 'Call arghandle with --complete option prepended'
-    arghandle --complete $argv 2>/dev/null
+    if test -n "$arghandle_suppress_errors"
+        arghandle --complete $argv 2>/dev/null
+    else
+        arghandle --complete $argv
+    end
 end
 
 function arg_get_snippet --description 'Call arghandle with --snippet option prepended'
-    arghandle --snippet $argv[1] $argv[2..] 2>/dev/null
+    if test -n "$arghandle_suppress_errors"
+        arghandle --snippet $argv[1] $argv[2..] 2>/dev/null
+    else
+        arghandle --snippet $argv[1] $argv[2..]
+    end
 end
 
 function arg_markdown --description 'Call arghandle with --markdown option prepended'
-    arghandle --markdown $argv 2>/dev/null
+    if test -n "$arghandle_suppress_errors"
+        arghandle --markdown $argv 2>/dev/null
+    else
+        arghandle --markdown $argv
+    end
 end
 
 
