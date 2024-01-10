@@ -1256,6 +1256,7 @@ complete --command arghandle --long-option min-args --exclusive --arguments "0\t
 complete --command arghandle --long-option max-args --exclusive --description "Specify a [M]aximum amount of positional arguments"
 complete --command arghandle --long-option completion --exclusive --description "Get a [c]ompletion code instead of one for parsing arguments"
 complete --command arghandle --long-option snippet --exclusive --arguments code --description "Get a [s]nippet code instead of one for parsing arguments"
+complete --command arghandle --long-option markdown --exclusive --arguments code --description "Get a m[a]rkdown code instead of one for parsing arguments"
 complete --command arghandle --long-option short --exclusive --description "Specify a [s]hort variant of an option"
 complete --command arghandle --long-option long --exclusive --description "Specify a [l]ong variant of an option"
 complete --command arghandle --long-option flag --description "Specify whether an option is [f]lag and doesn't accept any argument"
