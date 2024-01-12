@@ -621,6 +621,110 @@ function __arghandle_is_non_negative_int --argument-names value
     string match --regex --quiet -- '^\d+$' "$value"
 end
 
+function __arghandle_check_short_options --description 'Check $short_options'
+    set --local index 1
+    set --local count (count $argv)
+
+    while test "$index" -le "$count"
+        set --local short_option "$argv[$index]"
+
+        if test -z "$short_option"
+            __arghandle_missing_option_in_definition_error --short "$index"
+            return 1
+        end
+        if test (string length "$short_option") -ne 1
+            __arghandle_incorrect_option_value_format_in_definition_error --short "$short_option" "$index" "1 character long"
+            return 1
+        end
+
+        set index (math "$index" + 1)
+    end
+end
+
+function __arghandle_check_long_options --description 'Check $long_options'
+    set --local index 1
+    set --local count (count $argv)
+
+    while test "$index" -le "$count"
+        set --local long_option "$argv[$index]"
+
+        if test -z "$long_option"
+            __arghandle_missing_option_in_definition_error --long "$index"
+            return 1
+        end
+        if test (string length "$long_option") -lt 2
+            __arghandle_incorrect_option_value_format_in_definition_error --long "$long_option" "$index" "at least 2 characters long"
+            return 1
+        end
+
+        set index (math "$index" + 1)
+    end
+end
+
+function __arghandle_check_options_description --description 'Check $options_description'
+    set --local index 1
+    set --local count (count $argv)
+
+    while test "$index" -le "$count"
+        set --local option_description "$argv[$index]"
+
+        if test -z "$option_description"
+            __arghandle_missing_option_in_definition_error --description "$index"
+            return 1
+        end
+
+        set index (math "$index" + 1)
+    end
+end
+
+function __arghandle_check_options_range --description 'Check $options_range'
+    set --local index 1
+    set --local count (count $argv)
+
+    while test "$index" -le "$count"
+        set --local option_range "$argv[$index]"
+
+        if test -n "$option_range" && not is_range "$option_range"
+            __arghandle_incorrect_option_range_value_format_in_definition_error --range "$option_range" "$index"
+            return 1
+        end
+
+        set index (math "$index" + 1)
+    end
+end
+
+function __arghandle_check_options_enum --description 'Check $options_enum'
+    set --local index 1
+    set --local count (count $argv)
+
+    while test "$index" -le "$count"
+        set --local option_enum "$argv[$index]"
+
+        if test -n "$option_enum" && not is_enum "$option_enum"
+            __arghandle_incorrect_option_enum_value_format_in_definition_error --enum "$option_enum" "$index"
+            return 1
+        end
+
+        set index (math "$index" + 1)
+    end
+end
+
+function __arghandle_check_options_type --description 'Check $options_type'
+    set --local index 1
+    set --local count (count $argv)
+
+    while test "$index" -le "$count"
+        set --local option_type "$argv[$index]"
+
+        if test -n "$option_type" && not is_type "$option_type"
+            __arghandle_incorrect_option_value_format_in_definition_error --type "$option_type" "$index" (enum_to_str "str,int,float,bool")
+            return 1
+        end
+
+        set index (math "$index" + 1)
+    end
+end
+
 function arghandle --description 'Parses arguments and provides automatically generated help available via -h|--help'
     set --local name
     set --local description
@@ -776,7 +880,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
             set --local option_description $argv[(math "$source_index" + 2)]
 
             if test -z "$option_type"
-                __arghandle_in_definition_error "type to be one of str, int, float, bool, range or enum (type is inferred in the last two cases)" "$option_type" "$expanded_option_definition_count"
+                __arghandle_in_definition_error "type to be "(enum_to_str "str,int,float,bool,range,enum")" (type is inferred in the last two cases)" "$option_type" "$expanded_option_definition_count"
                 return 1
             end
             if test -n "$option_pair" && not is_option_pair "$option_pair"
@@ -903,54 +1007,23 @@ function arghandle --description 'Parses arguments and provides automatically ge
         set option_index (math "$option_index" + 1)
     end
 
+    # Independent checks are done via function calls.
+    __arghandle_check_short_options $short_options || return
+    __arghandle_check_long_options $long_options || return
+    __arghandle_check_options_description $options_description || return
+    __arghandle_check_options_range $options_range || return
+    __arghandle_check_options_enum $options_enum || return
+    __arghandle_check_options_type $options_type || return
+
     set index 1
     while test "$index" -lt "$option_index"
         set --local short_option "$short_options[$index]"
         set --local long_option "$long_options[$index]"
         set --local option_description "$options_description[$index]"
 
-        if test -z "$short_option"
-            __arghandle_missing_option_in_definition_error --short "$index"
-            return 1
-        end
-        if test -z "$long_option"
-            __arghandle_missing_option_in_definition_error --long "$index"
-            return 1
-        end
-        if test -z "$option_description"
-            __arghandle_missing_option_in_definition_error --description "$index"
-            return 1
-        end
-
-        if test (string length "$short_option") -ne 1
-            __arghandle_incorrect_option_value_format_in_definition_error --short "$short_option" "$index" "1 character long"
-            return 1
-        end
-        if test (string length "$long_option") -lt 2
-            __arghandle_incorrect_option_value_format_in_definition_error --long "$long_option" "$index" "at least 2 characters long"
-            return 1
-        end
-
         set --local option_range "$options_range[$index]"
         set --local option_enum "$options_enum[$index]"
         set --local option_type "$options_type[$index]"
-
-        if test -n "$option_range" && test -n "$option_enum"
-            __arghandle_in_definition_error "either '--range' or '--enum' options" "both options" "$index"
-            return 1
-        end
-        if test -n "$option_range" && not is_range "$option_range"
-            __arghandle_incorrect_option_range_value_format_in_definition_error --range "$option_range" "$index"
-            return 1
-        end
-        if test -n "$option_enum" && not is_enum "$option_enum"
-            __arghandle_incorrect_option_enum_value_format_in_definition_error --enum "$option_enum" "$index"
-            return 1
-        end
-        if test -n "$option_type" && not is_type "$option_type"
-            __arghandle_incorrect_option_value_format_in_definition_error --type "$option_type" "$index" "one of str, int, float or bool"
-            return 1
-        end
 
         set --local inferred_type (__arghandle_inferred_type_from_contraints "$option_range" "$option_enum")
         test -n "$option_range" || test -n "$option_enum"
@@ -977,7 +1050,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
         end
 
         if test -n "$option_default_specified"
-            set --local inferred_type (inferred_type_from_expression "$option_default")
+            set --local inferred_type (__arghandle_inferred_type_from_expression "$option_default")
             if test "$option_type" != "$inferred_type"
                 __arghandle_in_definition_error "'--default' type equal to '$option_type\
 ' type" "--type = $option_type and --default type = $inferred_type" "$index"
@@ -1122,7 +1195,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
             else if test -n "$option_enum"
                 set option_specification $option_specification"is_in_enum \"$option_enum\" \"\$_flag_value\""
             else
-                set option_specification $option_specification"test (inferred_type_from_expression \"\$_flag_value\") = $option_type"
+                set option_specification $option_specification"test (__arghandle_inferred_type_from_expression \"\$_flag_value\" || echo \"str\") = $option_type"
             end
         end
 
