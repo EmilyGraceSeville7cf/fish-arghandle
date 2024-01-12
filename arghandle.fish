@@ -17,6 +17,11 @@ set --query arghandle_option_default_suffix || set arghandle_option_default_suff
 set --query arghandle_option_min_suffix || set arghandle_option_min_suffix min
 set --query arghandle_option_max_suffix || set arghandle_option_max_suffix max
 
+set --query arghandle_option_markdown_default_suffix || set arghandle_option_markdown_default_suffix default
+set --query arghandle_option_markdown_range_suffix || set arghandle_option_markdown_range_suffix range
+set --query arghandle_option_markdown_enum_suffix || set arghandle_option_markdown_enum_suffix enumeration
+set --query arghandle_option_markdown_infinity_sign || set arghandle_option_markdown_infinity_sign infinity
+
 set --query arghandle_option_usage_max_count || set arghandle_option_usage_max_count 5
 
 
@@ -46,10 +51,6 @@ end
 
 function is_nullable_bool --argument-names value --description 'Check whether a value is a bool or nothing'
     is_bool "$value" || test -z "$value"
-end
-
-function is_simple --argument-names value --description 'Check whether a value is a simple one'
-    is_int "$value" || is_float "$value" || is_bool "$value" || is_str "$value" || is_nullable_int "$value" || is_nullable_float "$value" || is_nullable_bool "$value"
 end
 
 function is_int_range --argument-names value --description 'Check whether a value is an int range'
@@ -260,9 +261,13 @@ function __arghandle_inferred_type_from_contraints --argument-names range enum -
             set inferred_type bool
         else if is_str_enum "$enum"
             set inferred_type str
+        else if is_nullable_int_enum "$enum"
+            set inferred_type int
+        else if is_nullable_float_enum "$enum"
+            set inferred_type float
+        else if is_nullable_bool_enum "$enum"
+            set inferred_type bool
         end
-    else
-        return 1
     end
 
     echo "$inferred_type"
@@ -429,15 +434,15 @@ function range_to_markdown_str --argument-names range --description 'Convert a r
     set --local start (range_start "$range")
     set --local end (range_end "$range")
 
-    test -z "$start" && set start -infinity
-    test -z "$end" && set end infinity
+    test -z "$start" && set start -$arghandle_option_markdown_infinity_sign
+    test -z "$end" && set end $arghandle_option_markdown_infinity_sign
 
-    echo "**range**: `[$start..$end]`"
+    echo "**$arghandle_option_markdown_range_suffix**: `[$start..$end]`"
 end
 
 function enum_to_markdown_str --argument-names enum --description 'Convert an enum to a Markdown string'
     is_enum "$enum" || return
-    echo -n "**enumeration**: "
+    echo -n "**$arghandle_option_markdown_enum_suffix**: "
     set --local items (string split -- , "$enum")
     set --local count (count $items)
 
@@ -618,7 +623,7 @@ function __arghandle_markdown_option --argument-names short long description def
     if test -n "$default" || test -n "$range" || test -n "$enum"
         echo -n " ["
         set --local constraints
-        test -n "$default" && set --append constraints "**default**: `$default`"
+        test -n "$default" && set --append constraints "**$arghandle_option_markdown_default_suffix**: `$default`"
         test -n "$range" && set --append constraints (range_to_markdown_str "$range")
         test -n "$enum" && set --append constraints (enum_to_markdown_str "$enum")
         echo -n (string join ", " $constraints)
@@ -766,7 +771,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
         __arghandle_description "Parses arguments and provides automatically generated help available via -h|--help"
         __arghandle_separator
         __arghandle_title Usage
-        __arghandle_usage "arghandle [-n|--name {{value (str)}}] [-d|--description {{value (str)}}] [-e|--exclusive {{value (str)}}] [-m|--min-args {{value (int)}}] [-M|--max-args {{value (int)}}] {{option ...}}"
+        __arghandle_usage "arghandle {{option ...}}"
         __arghandle_separator
         __arghandle_title Options
         __arghandle_option h help "Print [h]elp, to work must be the first option outside of square brackets"
@@ -1064,7 +1069,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
         end
 
         if test -n "$option_default_specified"
-            set --local inferred_type (__arghandle_inferred_type_from_expression "$option_default")
+            set --local inferred_type (expression_type "$option_default")
             if test "$option_type" != "$inferred_type"
                 __arghandle_in_definition_error "'--default' type equal to '$option_type\
 ' type" "--type = $option_type and --default type = $inferred_type" "$index"
@@ -1075,11 +1080,11 @@ function arghandle --description 'Parses arguments and provides automatically ge
         set index (math $index + 1)
     end
 
-    if test (count $short_options) -ne (count (echo $short_options | string split " " | sort --unique))
+    if not are_unique_items $short_options
         __arghandle_duplicate_option_in_definition_error --short
         return 1
     end
-    if test (count $long_options) -ne (count (echo $long_options | string split " " | sort --unique))
+    if not are_unique_items $long_options
         __arghandle_duplicate_option_in_definition_error --long
         return 1
     end
@@ -1209,7 +1214,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
             else if test -n "$option_enum"
                 set option_specification $option_specification"is_in_enum \"$option_enum\" \"\$_flag_value\""
             else
-                set option_specification $option_specification"test (__arghandle_inferred_type_from_expression \"\$_flag_value\" || echo \"str\") = $option_type"
+                set option_specification $option_specification"test (expression_type_or_fallback \"\$_flag_value\" str) = $option_type"
             end
         end
 
@@ -1333,6 +1338,30 @@ function arg_markdown --description 'Call arghandle with --markdown option prepe
         arghandle --markdown $argv
     end
 end
+
+
+set __set_arghandle_markdown_settings_option_specification \
+    --name set_arghandle_markdown_settings --description 'Set $arghandle_option_markdown_* variables.' \
+    [ --description 'Suffix for [d]efault values (referred as {{suffix}} later), which is used like "**{{suffix}}**: {{default}}".' --short d --long default --default default ] \
+    [ --description 'Suffix for [r]anges (referred as {{suffix}} later), which is used like "**{{suffix}}**: [{{from}}..{{to}}]".' --short r --long range --default range ] \
+    [ --description 'Suffix for [e]num (referred as {{suffix}} later), which is used like "**{{suffix}}**: {{item1}}, {{item2}}, ...".' --short e --long enum --default enumeration ] \
+    [ --description 'Sign for an infinity (referred as {{sign}} later), which is used like "[{{from}}..{{sign}}]".' --short i --long infinity --default infinity ]
+
+function set_arghandle_markdown_settings --description 'Set $arghandle_option_markdown_* variables.'
+    arghandle_suppress_errors=true eval (arg_parse $__set_arghandle_markdown_settings_option_specification)
+
+    if set --query _flag_default
+        set arghandle_option_markdown_default_suffix "$_flag_default"
+    else if set --query _flag_range
+        set arghandle_option_markdown_range_suffix "$_flag_range"
+    else if set --query _flag_enum
+        set arghandle_option_markdown_enum_suffix "$_flag_enum"
+    else if set --query _flag_infinity
+        set arghandle_option_markdown_infinity_sign "$_flag_infinity"
+    end
+end
+
+eval (arg_completion $__set_arghandle_markdown_settings_option_specification)
 
 
 complete --command arghandle --long-option help --description "Print [h]elp"
