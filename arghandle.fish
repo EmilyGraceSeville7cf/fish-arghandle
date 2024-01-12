@@ -48,6 +48,10 @@ function is_nullable_bool --argument-names value --description 'Check whether a 
     is_bool "$value" || test -z "$value"
 end
 
+function is_simple --argument-names value --description 'Check whether a value is a simple one'
+    is_int "$value" || is_float "$value" || is_bool "$value" || is_str "$value" || is_nullable_int "$value" || is_nullable_float "$value" || is_nullable_bool "$value"
+end
+
 function is_int_range --argument-names value --description 'Check whether a value is an int range'
     set --local borders (string split -- .. "$value")
     set --local start "$borders[1]"
