@@ -1415,7 +1415,7 @@ end
 
 
 set __set_arghandle_markdown_settings_option_specification \
-    --name set_arghandle_markdown_settings --description 'Set $arghandle_option_markdown_* variables.' \
+    --name set_arghandle_markdown_settings --description 'Set $arghandle_option_markdown_* variables' \
     [ \
     --description 'Title [p]refix for all titles (referred as {{prefix}} later), which is used like "{{prefix}}{{title}}{{suffix}}".' \
     --short p --long titlePrefix \
@@ -1465,7 +1465,7 @@ set __set_arghandle_markdown_settings_option_specification \
     --no-default-assignment \
     ]
 
-function set_arghandle_markdown_settings --description 'Set $arghandle_option_markdown_* variables.'
+function set_arghandle_markdown_settings --description 'Set $arghandle_option_markdown_* variables'
     set --local arghandle_suppress_errors true
     eval (arg_parse $__set_arghandle_markdown_settings_option_specification)
 
