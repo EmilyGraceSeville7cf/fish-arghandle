@@ -483,19 +483,19 @@ function __arghandle_incorrect_option_value_format_out_of_definition_error --arg
 end
 
 function __arghandle_incorrect_option_range_value_format_in_definition_error --argument-names expected_option found index
-    __arghandle_incorrect_option_value_format_in_definition_error "$expected_option" "$found" "$index" "<from>..<to> (both numbers can't be missing at the same time)"
+    __arghandle_incorrect_option_value_format_in_definition_error "$expected_option" "$found" "$index" "{{from}}..{{to}} (both numbers can't be missing at the same time)"
 end
 
 function __arghandle_incorrect_option_range_value_format_out_of_definition_error --argument-names expected_option found
-    __arghandle_incorrect_option_value_format_out_of_definition_error "$expected_option" "$found" "<from>..<to> (both numbers can't be missing at the same time)"
+    __arghandle_incorrect_option_value_format_out_of_definition_error "$expected_option" "$found" "{{from}}..{{to}} (both numbers can't be missing at the same time)"
 end
 
 function __arghandle_incorrect_option_enum_value_format_in_definition_error --argument-names expected_option found index
-    __arghandle_incorrect_option_value_format_in_definition_error "$expected_option" "$found" "$index" "<item1>,<item2>,... (leading and trailing spaces are prohibited and unique values expected)"
+    __arghandle_incorrect_option_value_format_in_definition_error "$expected_option" "$found" "$index" "{{item1}},{{item2}},... (leading and trailing spaces are prohibited and unique values expected)"
 end
 
 function __arghandle_incorrect_option_enum_value_format_out_of_definition_error --argument-names expected_option found
-    __arghandle_incorrect_option_value_format_out_of_definition_error "$expected_option" "$found" "<item1>,<item2>,... (leading and trailing spaces are prohibited and unique values expected)"
+    __arghandle_incorrect_option_value_format_out_of_definition_error "$expected_option" "$found" "{{item1}},{{item2}},... (leading and trailing spaces are prohibited and unique values expected)"
 end
 
 function __arghandle_incorrect_option_empty_value_format_in_definition_error --argument-names expected_option index
@@ -780,7 +780,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
                 return 1
             end
             if test -n "$option_pair" && not is_option_pair "$option_pair"
-                __arghandle_in_definition_error "option pair to be <short-option>/<long-option> (leading dashes are prohibited)" "$option_pair" "$expanded_option_definition_count"
+                __arghandle_in_definition_error "option pair to be {{short-option}}/{{long-option}} (leading dashes are prohibited)" "$option_pair" "$expanded_option_definition_count"
                 return 1
             end
             if test -z "$option_description"
