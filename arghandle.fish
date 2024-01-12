@@ -799,6 +799,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
     set --local options_enum
     set --local options_validator
     set --local options_default
+    set --local options_no_default_assignment
 
     set --local options_default_specified
 
@@ -831,6 +832,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
         __arghandle_option e enum "Specify a valid value of an option as an [e]num"
         __arghandle_option v validator "Specify a value [v]alidator of an option as a call to a function"
         __arghandle_option d default "Specify a [d]efault value of an option"
+        __arghandle_option a no-default-assignment "Specify whether a default value of an option should not be [a]ssigned when it's not passed"
         return
     end
 
@@ -1040,12 +1042,16 @@ function arghandle --description 'Parses arguments and provides automatically ge
                 case --default
                     set options_default[$option_index] "$argument"
                     set options_default_specified[$option_index] true
+                case -a
+                    set options_no_default_assignment[$option_index] true
+                case --no-default-assignment
+                    set options_no_default_assignment[$option_index] true
                 case '*'
                     __arghandle_incorrect_option_in_definition_error "$option" "$option_index"
                     return 1
             end
 
-            not is_this_option f flag "$option"
+            not is_this_option f flag "$option" && not is_this_option a no-default-assignment "$option"
             set --local requires_argument "$status"
             if test "$requires_argument" -eq 0 && not set --query argument
                 __arghandle_incorrect_option_empty_value_format_in_definition_error "$option" "$option_index"
@@ -1351,6 +1357,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
         set --local option_is_flag "$options_is_flag[$index]"
         set --local option_default "$options_default[$index]"
         set --local option_default_specified "$options_default_specified[$index]"
+        set --local option_no_default_assignment "$options_no_default_assignment[$index]"
         set --local short_option "$short_options[$index]"
         set --local long_option "$long_options[$index]"
         set --local option_variable "_flag_$long_option"
@@ -1360,13 +1367,15 @@ function arghandle --description 'Parses arguments and provides automatically ge
             continue
         end
 
-        if test -n "$option_default_specified"
-            echo not set --query "$option_variable" "&&" set "$option_variable" (string escape -- "$option_default") ";"
-        else
-            echo if not set --query "$option_variable" ";"
-            echo echo "$name: Missing option -$short_option/--$long_option" ">&2" ";"
-            echo return 1 ";"
-            echo end ";"
+        if test -z "$option_no_default_assignment"
+            if test -n "$option_default_specified"
+                echo not set --query "$option_variable" "&&" set "$option_variable" (string escape -- "$option_default") ";"
+            else
+                echo if not set --query "$option_variable" ";"
+                echo echo "$name: Missing option -$short_option/--$long_option" ">&2" ";"
+                echo return 1 ";"
+                echo end ";"
+            end
         end
         set index (math "$index" + 1)
     end
@@ -1409,35 +1418,51 @@ set __set_arghandle_markdown_settings_option_specification \
     --name set_arghandle_markdown_settings --description 'Set $arghandle_option_markdown_* variables.' \
     [ \
     --description 'Title [p]refix for all titles (referred as {{prefix}} later), which is used like "{{prefix}}{{title}}{{suffix}}".' \
-    --short p --long titlePrefix --default "# " \
+    --short p --long titlePrefix \
+    --default "# " \
+    --no-default-assignment \
     ] \
     [ \
     --description 'Title [s]uffix for all titles (referred as {{suffix}} later), which is used like "{{prefix}}{{title}}{{suffix}}".' \
-    --short s --long titleSuffix --default "" \
+    --short s --long titleSuffix \
+    --default "" \
+    --no-default-assignment \
     ] \
     [ \
     --description 'Main title [f]ormat (referred as {{title}} later), which is used like "{{prefix}}{{title}}{{suffix}}".' \
-    --short f --long mainTitleFormat --default "`%s` function" \
+    --short f --long mainTitleFormat \
+    --default "`%s` function" \
+    --no-default-assignment \
     ] \
     [ \
     --description '"Options" title [F]ormat (referred as {{title}} later), which is used like "{{prefix}}{{title}}{{suffix}}".' \
-    --short F --long optionsTitleFormat --default Options \
+    --short F --long optionsTitleFormat \
+    --default Options \
+    --no-default-assignment \
     ] \
     [ \
     --description 'Suffix for [d]efault values (referred as {{suffix}} later), which is used like "**{{suffix}}**: {{default}}".' \
-    --short d --long optionDefaultPrefix --default default \
+    --short d --long optionDefaultPrefix \
+    --default default \
+    --no-default-assignment \
     ] \
     [ \
     --description 'Suffix for [r]anges (referred as {{suffix}} later), which is used like "**{{suffix}}**: [{{from}}..{{to}}]".' \
-    --short r --long optionRangePrefix --default range \
+    --short r --long optionRangePrefix \
+    --default range \
+    --no-default-assignment \
     ] \
     [ \
     --description 'Suffix for [e]num (referred as {{suffix}} later), which is used like "**{{suffix}}**: {{item1}}, {{item2}}, ...".' \
-    --short e --long optionEnumPrefix --default enumeration \
+    --short e --long optionEnumPrefix \
+    --default enumeration \
+    --no-default-assignment \
     ] \
     [ \
     --description 'Sign for an [i]nfinity (referred as {{sign}} later), which is used like "[{{from}}..{{sign}}]".' \
-    --short i --long optionInfinitySign --default infinity \
+    --short i --long optionInfinitySign \
+    --default infinity \
+    --no-default-assignment \
     ]
 
 function set_arghandle_markdown_settings --description 'Set $arghandle_option_markdown_* variables.'
