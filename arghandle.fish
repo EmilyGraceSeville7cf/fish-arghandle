@@ -1418,13 +1418,15 @@ set __set_arghandle_markdown_settings_option_specification \
     --name set_arghandle_markdown_settings --description 'Set $arghandle_option_markdown_* variables' \
     [ \
     --description 'Title [p]refix for all titles (referred as {{prefix}} later), which is used like "{{prefix}}{{title}}{{suffix}}".' \
-    --short p --long titlePrefix \
+    --short p \
+    --long titlePrefix \
     --default "# " \
     --no-default-assignment \
     ] \
     [ \
     --description 'Title [s]uffix for all titles (referred as {{suffix}} later), which is used like "{{prefix}}{{title}}{{suffix}}".' \
-    --short s --long titleSuffix \
+    --short s \
+    --long titleSuffix \
     --default "" \
     --no-default-assignment \
     ] \
@@ -1436,31 +1438,36 @@ set __set_arghandle_markdown_settings_option_specification \
     ] \
     [ \
     --description '"Options" title [F]ormat (referred as {{title}} later), which is used like "{{prefix}}{{title}}{{suffix}}".' \
-    --short F --long optionsTitleFormat \
+    --short F \
+    --long optionsTitleFormat \
     --default Options \
     --no-default-assignment \
     ] \
     [ \
     --description 'Suffix for [d]efault values (referred as {{suffix}} later), which is used like "**{{suffix}}**: {{default}}".' \
-    --short d --long optionDefaultPrefix \
+    --short d \
+    --long optionDefaultPrefix \
     --default default \
     --no-default-assignment \
     ] \
     [ \
     --description 'Suffix for [r]anges (referred as {{suffix}} later), which is used like "**{{suffix}}**: [{{from}}..{{to}}]".' \
-    --short r --long optionRangePrefix \
+    --short r \
+    --long optionRangePrefix \
     --default range \
     --no-default-assignment \
     ] \
     [ \
     --description 'Suffix for [e]num (referred as {{suffix}} later), which is used like "**{{suffix}}**: {{item1}}, {{item2}}, ...".' \
-    --short e --long optionEnumPrefix \
+    --short e \
+    --long optionEnumPrefix \
     --default enumeration \
     --no-default-assignment \
     ] \
     [ \
     --description 'Sign for an [i]nfinity (referred as {{sign}} later), which is used like "[{{from}}..{{sign}}]".' \
-    --short i --long optionInfinitySign \
+    --short i \
+    --long optionInfinitySign \
     --default infinity \
     --no-default-assignment \
     ]
