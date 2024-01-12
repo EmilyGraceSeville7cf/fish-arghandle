@@ -1106,7 +1106,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
 
             set --local arguments ""
 
-            test -n "$option_default_specified" && test "$option_default" != "$raw_start" && test "$option_default" != "$raw_end" \
+            test -n "$option_default_specified" && test "$option_default" != "$raw_start" && test "$option_default" != "$raw_end" &&
                 set arguments "$option_default\t$arghandle_option_default_suffix"
 
             set --local min_suffix "$arghandle_option_min_suffix"
