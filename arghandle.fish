@@ -194,8 +194,8 @@ function is_this_option --argument-names short_option long_option value --descri
     string match --regex --quiet -- "^(-$short_option|--$long_option)\$" "$value"
 end
 
-function __arghandle_inferred_type_from_expression --argument-names value --description 'Get an inferred type of a value'
-    set --local inferred_type
+function expression_type --argument-names value --description 'Get a type of a value'
+    set --local inferred_type str
     if is_int_range "$value"
         set inferred_type int
     else if is_float_range "$value"
@@ -208,10 +208,20 @@ function __arghandle_inferred_type_from_expression --argument-names value --desc
         set inferred_type float
     else if is_str_enum "$value"
         set inferred_type str
+    else if is_nullable_int_enum "$value"
+        set inferred_type int
+    else if is_nullable_float_enum "$value"
+        set inferred_type float
+    else if is_nullable_bool_enum "$value"
+        set inferred_type bool
     else
         return 1
     end
     echo "$inferred_type"
+end
+
+function expression_type_or_fallback --argument-names value fallback --description 'Get a type of a value or a fallback if it\'s not recognized'
+    expression_type "$value" || echo "$fallback"
 end
 
 # Used to allow specify either type explicitly or an expression which type is
@@ -221,7 +231,7 @@ end
 function __arghandle_inferred_type --argument-names value --description 'Get an inferred type of a value'
     if string match --quiet '@*' -- "$value"
         set --local value (string replace --regex -- '^@(.*)$' '$1' "$value")
-        inferred_type_from_expression "$value"
+        expression_type "$value"
         return
     end
 
@@ -230,7 +240,7 @@ function __arghandle_inferred_type --argument-names value --description 'Get an 
         return
     end
 
-    inferred_type_from_expression "$value"
+    expression_type "$value"
 end
 
 function __arghandle_inferred_type_from_contraints --argument-names range enum --description 'Get an inferred option type from --range or --enum options'
