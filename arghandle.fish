@@ -895,7 +895,7 @@ function arghandle --description 'Parses arguments and provides automatically ge
             set --append expanded_argv --short (option_pair_short "$option_pair")
             set --append expanded_argv --long (option_pair_long "$option_pair")
             set --append expanded_argv --description "$option_description"
-            set --append expanded_argv --type (inferred_type "$option_type")
+            set --append expanded_argv --type (__arghandle_inferred_type "$option_type")
 
             if not is_type "$option_type"
                 if is_range "$option_type"
