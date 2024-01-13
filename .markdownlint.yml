@@ -76,10 +76,10 @@ no-empty-links: true
 required-headings:
   headings:
     - + # Heading is expected to be here
-    - "## Pros and cons"
-    - "## Introduction example"
-    - "## Syntax"
-    - "*" # Subsections of "## Syntax" are potentially placed here
+    - "## Pros and cons" # Comparison with other tools
+    - "## Introduction example" # Quick Introduction example to quickly show main features
+    - "## Syntax" # Explanation of how to use this tool with Go-style placeholders
+    - "*" # Subsections of "## Syntax" or other titles are placed here
   match_case: true
 proper-names:
   code_blocks: false
