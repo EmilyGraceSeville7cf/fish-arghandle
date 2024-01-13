@@ -15,4 +15,6 @@ jobs:
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           title: Argument handler
-          files: "*.fish README.md"
+          files: |
+            *.fish
+            README.md
