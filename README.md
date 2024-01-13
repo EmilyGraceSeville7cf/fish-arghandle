@@ -221,6 +221,216 @@ Notes:
   `-R`|`--range` and `-e`|`--enum` do more: they restrict value to a certain
   subset too.
 
+## Configuration
+
+Configuration is currently done via environment variables whose names start with
+`arghandle_`:
+
+- `arghandle_suppress_errors`: Whether to suppress errors (redirect STDERR to
+  `/dev/null`).  
+  Values:
+  - no value: don't suppress errors
+  - any non empty value: suppress errors
+  
+  Affected functions:
+  - `arg_parse`
+  - `arg_completion`
+  - `arg_snippet`
+  - `arg_markdown`
+
+- `arghandle_title_color`: Title color for `-h`|`--help`.  
+  Values:
+  - any color valid for `set_color`.
+
+  Affected functions:
+  - `arghandle`
+  - `arg_parse`
+  
+- `arghandle_option_color`: Option color for `-h`|`--help`.  
+  Values:
+  - any color valid for `set_color`.
+
+  Affected functions:
+  - `arghandle`
+  - `arg_parse`
+  
+- `arghandle_int_placeholder_color`: `int` placeholder color for
+  `-h`|`--help`.  
+  Values:
+  - any color valid for `set_color`.
+
+  Affected functions:
+  - `arghandle`
+  - `arg_parse`
+  
+- `arghandle_float_placeholder_color`: `float` placeholder color for
+  `-h`|`--help`.  
+  Values:
+  - any color valid for `set_color`.
+
+  Affected functions:
+  - `arghandle`
+  - `arg_parse`
+  
+- `arghandle_bool_placeholder_color`: `bool` placeholder color for
+  `-h`|`--help`.  
+  Values:
+  - any color valid for `set_color`.
+
+  Affected functions:
+  - `arghandle`
+  - `arg_parse`
+  
+- `arghandle_str_placeholder_color`: `str` placeholder color for
+  `-h`|`--help`.  
+  Values:
+  - any color valid for `set_color`.
+
+  Affected functions:
+  - `arghandle`
+  - `arg_parse`
+
+- `arghandle_option_mnemonic_color`: Option mnemonic color for `-h`|`--help`.  
+  Values:
+  - any color valid for `set_color`.
+
+  Affected functions:
+  - `arghandle`
+  - `arg_parse`
+  
+- `arghandle_option_default_color`: Option `-d`|`--default` color for
+  `-h`|`--help`.  
+  Values:
+  - any color valid for `set_color`.
+
+  Affected functions:
+  - `arghandle`
+  - `arg_parse`
+  
+- `arghandle_option_deprecation_notice_color`: Option deprecation notice color
+  for `-h`|`--help` (*not supported yet*).  
+  Values:
+  - any color valid for `set_color`.
+
+  Affected functions:
+  - `arghandle`
+  - `arg_parse`
+
+- `arghandle_option_default_suffix`: Text used to denote an option
+  `-d`|`--default` value in a generated completion.  
+  Values:
+  - any value
+  
+  Affected functions:
+  - `arghandle`
+  - `arg_completion`
+
+- `arghandle_option_min_suffix`: Text used to denote an option minimum
+  `-R`|`--range` value in a generated completion.  
+  Values:
+  - any value
+  
+  Affected functions:
+  - `arghandle`
+  - `arg_completion`
+  
+- `arghandle_option_max_suffix`: Text used to denote an option maximum
+  `-R`|`--range` value in a generated completion.  
+  Values:
+  - any value
+  
+  Affected functions:
+  - `arghandle`
+  - `arg_completion`
+
+- `arghandle_title_markdown_default_prefix`: A title prefix in generated
+  Markdown.  
+  Values:
+  - any value
+  
+  Affected functions:
+  - `arghandle`
+  - `arg_markdown`
+  
+- `arghandle_title_markdown_default_suffix`: A title suffix in generated
+  Markdown.  
+  Values:
+  - any value
+  
+  Affected functions:
+  - `arghandle`
+  - `arg_markdown`
+  
+- `arghandle_main_title_markdown_default_format`: A first title format in
+  generated Markdown.  
+  Values:
+  - any value
+  
+  Parameters:
+  - `%s`: function `-n`|`--name`
+  
+  Affected functions:
+  - `arghandle`
+  - `arg_markdown`
+  
+- `arghandle_options_title_markdown_default_format`: A second title format in
+  generated Markdown.  
+  Values:
+  - any value
+  
+  Parameters:
+  - `%s`: function `-n`|`--name`
+  
+  Affected functions:
+  - `arghandle`
+  - `arg_markdown`
+  
+- `arghandle_option_markdown_default_prefix`: Text used to denote an option
+  `-d`|`--default` value in a generated Markdown.  
+  Values:
+  - any value
+  
+  Affected functions:
+  - `arghandle`
+  - `arg_markdown`
+  
+- `arghandle_option_markdown_range_prefix`: Text used to denote an option
+  minimum `-R`|`--range` value in a generated Markdown.  
+  Values:
+  - any value
+  
+  Affected functions:
+  - `arghandle`
+  - `arg_markdown`
+  
+- `arghandle_option_markdown_enum_prefix`: Text used to denote an option
+  maximum `-R`|`--range` value in a generated Markdown.  
+  Values:
+  - any value
+  
+  Affected functions:
+  - `arghandle`
+  - `arg_markdown`
+  
+- `arghandle_option_markdown_infinity_sign`: Text used to denote an infinity
+  value for opened `-R`|`--range` value in a generated Markdown.  
+  Values:
+  - any value
+  
+  Affected functions:
+  - `arghandle`
+  - `arg_markdown`
+
+- `arghandle_option_usage_max_count`: A maximum amount of arguments which
+  can be shown in a usage in `-h`|`--help`. When there are more options
+  available all of them are presented as `{{option ...}}`.  
+  Values:
+  - positive `int`
+
+  Affected functions:
+  - `arghandle`
+  - `arg_parse`
+
 ## Additional functions
 
 To quicker discover current `arghandle` settings you can use these functions:
