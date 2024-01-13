@@ -1225,9 +1225,15 @@ function arghandle --description 'Parses arguments and provides automatically ge
                     set --local short_option "$short_options[$index]"
                     set --local long_option "$long_options[$index]"
                     set --local option_description "$options_description[$index]"
+                    set --local option_enum "$options_enum[$index]"
 
                     set --local placeholder_value_index (math "$placeholder_index" + 1)
-                    set body "$body \${$placeholder_index|--$long_option,-$short_option|} \${$placeholder_value_index:"(string escape -- "$option_description")"}"
+                    set --local option_variant_choise "\${$placeholder_index|--$long_option,-$short_option|}"
+                    set --local option_value_choise "\${$placeholder_value_index:"(string escape -- "$option_description")"}"
+
+                    test -n "$option_enum" && set option_value_choise "\${$placeholder_value_index|"(string escape -- "$option_enum")"|}"
+
+                    set body "$body $option_variant_choise $option_value_choise"
 
                     set index (math "$index" + 1)
                     set placeholder_index (math "$placeholder_index" + 2)
