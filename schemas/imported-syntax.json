@@ -1,0 +1,268 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "option-definitions.description-property": {
+      "title": "description",
+      "description": "Specify an option [d]escription\nCorresponds to -d|--description option\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
+      "type": "string",
+      "minLength": 1,
+      "not": {
+        "pattern": "^ +| +$"
+      },
+      "examples": ["A book [a]uthor to search"]
+    },
+    "option-definitions.short-property": {
+      "title": "short",
+      "description": "Specify a [s]hort variant of an option\nCorresponds to -s|--short option\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
+      "type": "string",
+      "minLength": 1,
+      "not": {
+        "pattern": "^ +| +$"
+      },
+      "examples": ["a"]
+    },
+    "option-definitions.long-property": {
+      "title": "long",
+      "description": "Specify a [l]ong variant of an option\nCorresponds to -l|--long option\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
+      "type": "string",
+      "minLength": 1,
+      "not": {
+        "pattern": "^ +| +$"
+      },
+      "examples": ["author"]
+    },
+    "option-definitions.flag-property": {
+      "title": "flag",
+      "description": "Specify whether an option is [f]lag and doesn't accept any argument\nCorresponds to -f|--flag option\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
+      "type": "boolean",
+      "const": true
+    },
+    "option-definitions.type-property": {
+      "title": "type",
+      "description": "Specify a value [t]ype of an option, must be one of: str, int, float, bool\nCorresponds to -t|--type option\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
+      "type": "string",
+      "enum": ["str", "int", "float", "bool"]
+    },
+    "option-definitions.range-property": {
+      "title": "range",
+      "description": "Specify a valid value [R]ange of an option as a number range\nCorresponds to -R|--range option\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
+      "type": "object",
+      "properties": {
+        "from": {
+          "title": "from",
+          "description": "A range lowest bound\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
+          "type": "integer",
+          "examples": [0]
+        },
+        "to": {
+          "title": "to",
+          "description": "A range highest bound\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
+          "type": "integer",
+          "examples": [0]
+        }
+      },
+      "minProperties": 1
+    },
+    "option-definitions.enum-property": {
+      "title": "enum",
+      "description": "Specify a valid value of an option as an [e]num\nCorresponds to -e|--enum option\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "description": "Specify a valid value of an option\nCorresponds to -e|--enum option item\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
+        "type": ["number", "string", "boolean"],
+        "examples": [0]
+      }
+    },
+    "option-definitions.validator-property": {
+      "title": "validator",
+      "description": "Specify a value [v]alidator of an option as a call to a function\nCorresponds to -v|--validator option\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
+      "type": "string",
+      "minLength": 1,
+      "not": {
+        "pattern": "^ +| +$"
+      },
+      "examples": ["string match -- 'https://' \\$_flag_url"]
+    },
+    "option-definitions.default-property": {
+      "title": "default",
+      "description": "Specify a [d]efault value of an option\nCorresponds to -d|--default option\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
+      "type": ["number", "string", "boolean"],
+      "examples": [0]
+    },
+    "option-definitions.no-default-assignment-property": {
+      "title": "no default assignment",
+      "description": "Specify whether a default value of an option should not be [a]ssigned when it's not passed\nCorresponds to -a|--no-default-assignment option\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
+      "type": "boolean",
+      "const": true
+    }
+  },
+  "title": "imported syntax",
+  "description": "An imported syntax\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle",
+  "type": "object",
+  "required": ["name", "description"],
+  "dependencies": {
+    "exclusive": ["option-definitions"]
+  },
+  "properties": {
+    "$schema": {
+      "title": "schema",
+      "description": "Specify schema path",
+      "not": {
+        "pattern": "^ +$"
+      },
+      "examples": ["imported-syntax.json"]
+    },
+    "name": {
+      "title": "name",
+      "description": "Specify a [n]ame of a command for error messages\nCorresponds to -n|--name option\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
+      "type": "string",
+      "minLength": 1,
+      "not": {
+        "pattern": "^ +| +$"
+      },
+      "examples": ["search_book"]
+    },
+    "description": {
+      "title": "description",
+      "description": "Specify a [d]escription of a command for -h|--help\nCorresponds to -d|--description option\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
+      "type": "string",
+      "minLength": 1,
+      "not": {
+        "pattern": "^ +| +$"
+      },
+      "examples": ["Function to search books in an online book store"]
+    },
+    "exclusive": {
+      "title": "exclusive",
+      "description": "Specify [e]xclusive options from option definitions\nCorresponds to -e|--exclusive option\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
+      "type": "array",
+      "uniqueItems": true,
+      "minItems": 1,
+      "items": {
+        "description": "Specify [e]xclusive options from option definitions\nCorresponds to -e|--exclusive option\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
+        "type": "array",
+        "uniqueItems": true,
+        "minItems": 1,
+        "items": {
+          "description": "Specify [e]xclusive option from option definitions\nCorresponds to -e|--exclusive option item\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
+          "type": "string",
+          "not": {
+            "pattern": "^ +| +$"
+          },
+          "examples": ["a", "author"]
+        }
+      }
+    },
+    "min-args": {
+      "title": "min args",
+      "description": "Specify a [m]inimum amount of positional arguments\nCorresponds to -m|--min-args option\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "max-args": {
+      "title": "max args",
+      "description": "Specify a [M]aximum amount of positional arguments\nCorresponds to -M|--max-args option\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
+      "type": "integer",
+      "minimum": 0
+    },
+    "option-definitions": {
+      "title": "option definitions",
+      "description": "Option definitions\nCorresponds to [ ... ] definitions\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
+      "type": "array",
+      "uniqueItems": true,
+      "minItems": 1,
+      "items": {
+        "description": "An option definition\nCorresponds to [ ... ] definition\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
+        "type": "object",
+        "required": ["description", "short", "long"],
+        "oneOf": [
+          {
+            "description": "An option definition with -t|--type specified\nCorresponds to [ ... ] definition\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
+            "properties": {
+              "description": {
+                "$ref": "#/definitions/option-definitions.description-property"
+              },
+              "short": {
+                "$ref": "#/definitions/option-definitions.short-property"
+              },
+              "long": {
+                "$ref": "#/definitions/option-definitions.long-property"
+              },
+              "flag": {
+                "$ref": "#/definitions/option-definitions.flag-property"
+              },
+              "type": {
+                "$ref": "#/definitions/option-definitions.type-property"
+              },
+              "validator": {
+                "$ref": "#/definitions/option-definitions.validator-property"
+              },
+              "no-default-assignment": {
+                "$ref": "#/definitions/option-definitions.no-default-assignment-property"
+              }
+            },
+            "dependencies": {
+              "flag": {
+                "not": {
+                  "properties": {
+                    "type": true
+                  }
+                }
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "description": "An option definition with one or several of: -R|--range, -e|--enum, and -d|--default specified\nCorresponds to [ ... ] definition\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
+            "properties": {
+              "description": {
+                "$ref": "#/definitions/option-definitions.description-property"
+              },
+              "short": {
+                "$ref": "#/definitions/option-definitions.short-property"
+              },
+              "long": {
+                "$ref": "#/definitions/option-definitions.long-property"
+              },
+              "flag": {
+                "$ref": "#/definitions/option-definitions.flag-property"
+              },
+              "range": {
+                "$ref": "#/definitions/option-definitions.range-property"
+              },
+              "enum": {
+                "$ref": "#/definitions/option-definitions.enum-property"
+              },
+              "validator": {
+                "$ref": "#/definitions/option-definitions.validator-property"
+              },
+              "default": {
+                "$ref": "#/definitions/option-definitions.default-property"
+              },
+              "no-default-assignment": {
+                "$ref": "#/definitions/option-definitions.no-default-assignment-property"
+              }
+            },
+            "dependencies": {
+              "no-default-assignment": ["default"],
+              "flag": {
+                "not": {
+                  "properties": {
+                    "range": true,
+                    "enum": true,
+                    "default": true
+                  }
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "minProperties": 4
+      }
+    }
+  },
+  "additionalProperties": false
+}
