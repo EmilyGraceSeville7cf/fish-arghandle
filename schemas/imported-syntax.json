@@ -201,9 +201,58 @@
         "description": "An option definition\nCorresponds to [ ... ] definition\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
         "type": "object",
         "required": ["description", "short", "long"],
-        "oneOf": [
-          {
-            "description": "An option definition with -t|--type specified\nCorresponds to [ ... ] definition\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
+        "properties": {
+          "description": {
+            "$ref": "#/definitions/option-definitions.description-property"
+          },
+          "short": {
+            "$ref": "#/definitions/option-definitions.short-property"
+          },
+          "long": {
+            "$ref": "#/definitions/option-definitions.long-property"
+          },
+          "flag": {
+            "$ref": "#/definitions/option-definitions.flag-property"
+          },
+          "type": {
+            "$ref": "#/definitions/option-definitions.type-property"
+          },
+          "range": {
+            "$ref": "#/definitions/option-definitions.range-property"
+          },
+          "enum": {
+            "$ref": "#/definitions/option-definitions.enum-property"
+          },
+          "validator": {
+            "$ref": "#/definitions/option-definitions.validator-property"
+          },
+          "default": {
+            "$ref": "#/definitions/option-definitions.default-property"
+          },
+          "no-default-assignment": {
+            "$ref": "#/definitions/option-definitions.no-default-assignment-property"
+          }
+        },
+        "dependencies": {
+          "no-default-assignment": ["default"],
+          "type": {
+            "properties": {
+              "description": {
+                "$ref": "#/definitions/option-definitions.description-property"
+              },
+              "short": {
+                "$ref": "#/definitions/option-definitions.short-property"
+              },
+              "long": {
+                "$ref": "#/definitions/option-definitions.long-property"
+              },
+              "type": {
+                "$ref": "#/definitions/option-definitions.type-property"
+              }
+            },
+            "additionalProperties": false
+          },
+          "flag": {
             "properties": {
               "description": {
                 "$ref": "#/definitions/option-definitions.description-property"
@@ -216,30 +265,34 @@
               },
               "flag": {
                 "$ref": "#/definitions/option-definitions.flag-property"
+              }
+            },
+            "additionalProperties": false
+          },
+          "range": {
+            "properties": {
+              "description": {
+                "$ref": "#/definitions/option-definitions.description-property"
               },
-              "type": {
-                "$ref": "#/definitions/option-definitions.type-property"
+              "short": {
+                "$ref": "#/definitions/option-definitions.short-property"
               },
-              "validator": {
-                "$ref": "#/definitions/option-definitions.validator-property"
+              "long": {
+                "$ref": "#/definitions/option-definitions.long-property"
+              },
+              "range": {
+                "$ref": "#/definitions/option-definitions.range-property"
+              },
+              "default": {
+                "$ref": "#/definitions/option-definitions.default-property"
               },
               "no-default-assignment": {
                 "$ref": "#/definitions/option-definitions.no-default-assignment-property"
               }
             },
-            "dependencies": {
-              "flag": {
-                "not": {
-                  "properties": {
-                    "type": true
-                  }
-                }
-              }
-            },
             "additionalProperties": false
           },
-          {
-            "description": "An option definition with one or several of: -R|--range, -e|--enum, and -d|--default specified\nCorresponds to [ ... ] definition\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
+          "enum": {
             "properties": {
               "description": {
                 "$ref": "#/definitions/option-definitions.description-property"
@@ -250,14 +303,28 @@
               "long": {
                 "$ref": "#/definitions/option-definitions.long-property"
               },
-              "flag": {
-                "$ref": "#/definitions/option-definitions.flag-property"
-              },
-              "range": {
-                "$ref": "#/definitions/option-definitions.range-property"
-              },
               "enum": {
                 "$ref": "#/definitions/option-definitions.enum-property"
+              },
+              "default": {
+                "$ref": "#/definitions/option-definitions.default-property"
+              },
+              "no-default-assignment": {
+                "$ref": "#/definitions/option-definitions.no-default-assignment-property"
+              }
+            },
+            "additionalProperties": false
+          },
+          "validator": {
+            "properties": {
+              "description": {
+                "$ref": "#/definitions/option-definitions.description-property"
+              },
+              "short": {
+                "$ref": "#/definitions/option-definitions.short-property"
+              },
+              "long": {
+                "$ref": "#/definitions/option-definitions.long-property"
               },
               "validator": {
                 "$ref": "#/definitions/option-definitions.validator-property"
@@ -269,22 +336,11 @@
                 "$ref": "#/definitions/option-definitions.no-default-assignment-property"
               }
             },
-            "dependencies": {
-              "no-default-assignment": ["default"],
-              "flag": {
-                "not": {
-                  "properties": {
-                    "range": true,
-                    "enum": true,
-                    "default": true
-                  }
-                }
-              }
-            },
             "additionalProperties": false
           }
-        ],
-        "minProperties": 4
+        },
+        "minProperties": 4,
+        "additionalProperties": false
       }
     }
   },
