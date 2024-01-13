@@ -159,9 +159,10 @@ matching brackets or before the first colon):
 - `-M`|`--max-args`: Specify a [M]aximum amount of positional arguments.
 - `-c`|`--completion`: Get a [c]ompletion code instead of one for parsing
   arguments, to work must be the first option outside of square brackets.
-- `-s`|`--snippet` Get a [s]nippet code instead of one for parsing arguments,
-- must be one of: `code` (Visual Studio Code) and to work must be the first
+- `-s`|`--snippet`: Get a [s]nippet code instead of one for parsing arguments,
+  must be one of: `code` (Visual Studio Code) and to work must be the first
   option outside of square brackets.
+- `-a`|`--markdown`: Get a m[a]rkdown code instead of one for parsing arguments
 
 ### Option definitions (`{{option_definition ...}}`)
 
@@ -194,23 +195,241 @@ matching brackets or after the first colon):
 - `-R`|`--range`: Specify a valid value [R]ange of an option as a number range.
 - `-e`|`--enum`: Specify a valid value of an option as an [e]num.
 - `-v`|`--validator`: Specify a value [v]alidator of an option as a call to a
-- function.
+- function (*not supported yet*).
 - `-d`|`--default`: Specify a [d]efault value of an option.
+- `-a`|`--no-default-assignment`: Specify whether a default value of an option
+  should not be [a]ssigned when it's not passed
+
+Dependencies:
+
+- `-t`|`--type` can't be used along with one of the following options as
+  these options allow infer option type and therefor `-t`|`--type` becomes
+  redundant:
+  - `-R`|`--range`
+  - `-e`|`--enum`
+  - `-d`|`--default`
+- `-R`|`--range` and `-e`|`--enum` can't be used together.
 
 Notes:
 
+- Integers are not considered as a special case of floats, they are separate
+  types. Don't treat integers as a "subclass" of floats.
 - Ranges can consist of `int`egers or `float`s. They can be opened from just one
-- side like `1..` or `..10` and closed from both `1..10`.
-- Enums can consist of any comma-separated values. If all values have one type,
-- then it's the type of the enum. Otherwise, enum considered to contain
-- `str`ings.
-- `-R`|`--range` and `-e`|`--enum` are mutually exclusive.
+  side like `1..` or `..10` and closed from both `1..10`.
+- Enums can consist of any comma-separated values of the same type.
 - `-t`|`--type` is used to just tell valid value type for an option, while
-- `-R`|`--range` and `-e`|`--enum` do more: they restrict value to a certain
-  subset too. By default `-t`|`--type` assumed to be `str` unless explicitly
-  specified or one of the following options are used:
-  - `-R`|`--range` - tells that `-t`|`--type` is implicitly `int` or `float`
-  - `-e`|`--enum` - tells `-t`|`--type` implicitly  
+  `-R`|`--range` and `-e`|`--enum` do more: they restrict value to a certain
+  subset too.
+
+## Configuration
+
+Configuration is currently done via environment variables whose names start with
+`arghandle_`:
+
+- `arghandle_suppress_errors`: Whether to suppress errors (redirect STDERR to
+  `/dev/null`).  
+  Values:
+  - no value: don't suppress errors
+  - any non empty value: suppress errors
+  
+  Affected functions:
+  - `arg_parse`
+  - `arg_completion`
+  - `arg_snippet`
+  - `arg_markdown`
+
+- `arghandle_title_color`: Title color for `-h`|`--help`.  
+  Values:
+  - any color valid for `set_color`.
+
+  Affected functions:
+  - `arghandle`
+  - `arg_parse`
+  
+- `arghandle_option_color`: Option color for `-h`|`--help`.  
+  Values:
+  - any color valid for `set_color`.
+
+  Affected functions:
+  - `arghandle`
+  - `arg_parse`
+  
+- `arghandle_int_placeholder_color`: `int` placeholder color for
+  `-h`|`--help`.  
+  Values:
+  - any color valid for `set_color`.
+
+  Affected functions:
+  - `arghandle`
+  - `arg_parse`
+  
+- `arghandle_float_placeholder_color`: `float` placeholder color for
+  `-h`|`--help`.  
+  Values:
+  - any color valid for `set_color`.
+
+  Affected functions:
+  - `arghandle`
+  - `arg_parse`
+  
+- `arghandle_bool_placeholder_color`: `bool` placeholder color for
+  `-h`|`--help`.  
+  Values:
+  - any color valid for `set_color`.
+
+  Affected functions:
+  - `arghandle`
+  - `arg_parse`
+  
+- `arghandle_str_placeholder_color`: `str` placeholder color for
+  `-h`|`--help`.  
+  Values:
+  - any color valid for `set_color`.
+
+  Affected functions:
+  - `arghandle`
+  - `arg_parse`
+
+- `arghandle_option_mnemonic_color`: Option mnemonic color for `-h`|`--help`.  
+  Values:
+  - any color valid for `set_color`.
+
+  Affected functions:
+  - `arghandle`
+  - `arg_parse`
+  
+- `arghandle_option_default_color`: Option `-d`|`--default` color for
+  `-h`|`--help`.  
+  Values:
+  - any color valid for `set_color`.
+
+  Affected functions:
+  - `arghandle`
+  - `arg_parse`
+  
+- `arghandle_option_deprecation_notice_color`: Option deprecation notice color
+  for `-h`|`--help` (*not supported yet*).  
+  Values:
+  - any color valid for `set_color`.
+
+  Affected functions:
+  - `arghandle`
+  - `arg_parse`
+
+- `arghandle_option_default_suffix`: Text used to denote an option
+  `-d`|`--default` value in a generated completion.  
+  Values:
+  - any value
+  
+  Affected functions:
+  - `arghandle`
+  - `arg_completion`
+
+- `arghandle_option_min_suffix`: Text used to denote an option minimum
+  `-R`|`--range` value in a generated completion.  
+  Values:
+  - any value
+  
+  Affected functions:
+  - `arghandle`
+  - `arg_completion`
+  
+- `arghandle_option_max_suffix`: Text used to denote an option maximum
+  `-R`|`--range` value in a generated completion.  
+  Values:
+  - any value
+  
+  Affected functions:
+  - `arghandle`
+  - `arg_completion`
+
+- `arghandle_title_markdown_default_prefix`: A title prefix in generated
+  Markdown.  
+  Values:
+  - any value
+  
+  Affected functions:
+  - `arghandle`
+  - `arg_markdown`
+  
+- `arghandle_title_markdown_default_suffix`: A title suffix in generated
+  Markdown.  
+  Values:
+  - any value
+  
+  Affected functions:
+  - `arghandle`
+  - `arg_markdown`
+  
+- `arghandle_main_title_markdown_default_format`: A first title format in
+  generated Markdown.  
+  Values:
+  - any value
+  
+  Parameters:
+  - `%s`: function `-n`|`--name`
+  
+  Affected functions:
+  - `arghandle`
+  - `arg_markdown`
+  
+- `arghandle_options_title_markdown_default_format`: A second title format in
+  generated Markdown.  
+  Values:
+  - any value
+  
+  Parameters:
+  - `%s`: function `-n`|`--name`
+  
+  Affected functions:
+  - `arghandle`
+  - `arg_markdown`
+  
+- `arghandle_option_markdown_default_prefix`: Text used to denote an option
+  `-d`|`--default` value in a generated Markdown.  
+  Values:
+  - any value
+  
+  Affected functions:
+  - `arghandle`
+  - `arg_markdown`
+  
+- `arghandle_option_markdown_range_prefix`: Text used to denote an option
+  minimum `-R`|`--range` value in a generated Markdown.  
+  Values:
+  - any value
+  
+  Affected functions:
+  - `arghandle`
+  - `arg_markdown`
+  
+- `arghandle_option_markdown_enum_prefix`: Text used to denote an option
+  maximum `-R`|`--range` value in a generated Markdown.  
+  Values:
+  - any value
+  
+  Affected functions:
+  - `arghandle`
+  - `arg_markdown`
+  
+- `arghandle_option_markdown_infinity_sign`: Text used to denote an infinity
+  value for opened `-R`|`--range` value in a generated Markdown.  
+  Values:
+  - any value
+  
+  Affected functions:
+  - `arghandle`
+  - `arg_markdown`
+
+- `arghandle_option_usage_max_count`: A maximum amount of arguments which
+  can be shown in a usage in `-h`|`--help`. When there are more options
+  available all of them are presented as `{{option ...}}`.  
+  Values:
+  - positive `int`
+
+  Affected functions:
+  - `arghandle`
+  - `arg_parse`
 
 ## Additional functions
 

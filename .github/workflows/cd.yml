@@ -15,4 +15,7 @@ jobs:
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           title: Argument handler
-          files: "*.fish README.md"
+          automatic_release_tag: v2.0.0
+          files: |
+            *.fish
+            README.md
