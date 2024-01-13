@@ -195,7 +195,7 @@ matching brackets or after the first colon):
 - `-R`|`--range`: Specify a valid value [R]ange of an option as a number range.
 - `-e`|`--enum`: Specify a valid value of an option as an [e]num.
 - `-v`|`--validator`: Specify a value [v]alidator of an option as a call to a
-- function.
+- function (*not supported yet*).
 - `-d`|`--default`: Specify a [d]efault value of an option.
 - `-a`|`--no-default-assignment`: Specify whether a default value of an option
   should not be [a]ssigned when it's not passed
