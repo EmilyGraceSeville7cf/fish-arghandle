@@ -46,22 +46,39 @@
     "option-definitions.range-property": {
       "title": "range",
       "description": "Specify a valid value [R]ange of an option as a number range\nCorresponds to -R|--range option\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
-      "type": "object",
-      "properties": {
-        "from": {
-          "title": "from",
-          "description": "A range lowest bound\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
-          "type": "integer",
-          "examples": [0]
+      "oneOf": [
+        {
+          "description": "A full value [R]ange of an option\nCorresponds to -R|--range option\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
+          "type": "object",
+          "properties": {
+            "from": {
+              "title": "from",
+              "description": "A range lowest bound\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
+              "type": "integer",
+              "examples": [0]
+            },
+            "to": {
+              "title": "to",
+              "description": "A range highest bound\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
+              "type": "integer",
+              "examples": [0]
+            }
+          },
+          "minProperties": 1
         },
-        "to": {
-          "title": "to",
-          "description": "A range highest bound\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
-          "type": "integer",
-          "examples": [0]
+        {
+          "description": "An int value [R]ange of an option\nCorresponds to -R|--range option\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
+          "type": "string",
+          "pattern": "^(-?\\d+\\.\\.|\\.\\.-?\\d+|-?\\d+\\.\\.-?\\d+)$",
+          "examples": ["1..", "..10", "1..10"]
+        },
+        {
+          "description": "A float value [R]ange of an option\nCorresponds to -R|--range option\nhttps://github.com/EmilyGraceSeville7cf/fish-arghandle#syntax",
+          "type": "string",
+          "pattern": "^(-?\\d+\\.\\d+\\.\\.|\\.\\.-?\\d+\\.\\d+|-?\\d+\\.\\d+\\.\\.-?\\d+\\.\\d+)$",
+          "examples": ["1.1..", "..10.1", "1.1..10.1"]
         }
-      },
-      "minProperties": 1
+      ]
     },
     "option-definitions.enum-property": {
       "title": "enum",
