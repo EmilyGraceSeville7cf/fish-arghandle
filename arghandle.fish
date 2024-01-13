@@ -27,6 +27,7 @@ set --query arghandle_option_markdown_enum_prefix || set --export arghandle_opti
 set --query arghandle_option_markdown_infinity_sign || set --export arghandle_option_markdown_infinity_sign infinity
 
 set --query arghandle_option_usage_max_count || set --export arghandle_option_usage_max_count 5
+set --query arghandle_range_values_max_count || set --export arghandle_range_values_max_count 6
 
 
 function is_int --argument-names value --description 'Check whether a value is an int'
@@ -1225,13 +1226,25 @@ function arghandle --description 'Parses arguments and provides automatically ge
                     set --local short_option "$short_options[$index]"
                     set --local long_option "$long_options[$index]"
                     set --local option_description "$options_description[$index]"
+                    set --local option_range "$options_range[$index]"
                     set --local option_enum "$options_enum[$index]"
 
                     set --local placeholder_value_index (math "$placeholder_index" + 1)
                     set --local option_variant_choise "\${$placeholder_index|--$long_option,-$short_option|}"
                     set --local option_value_choise "\${$placeholder_value_index:"(string escape -- "$option_description")"}"
 
-                    test -n "$option_enum" && set option_value_choise "\${$placeholder_value_index|"(string escape -- "$option_enum")"|}"
+                    if test -n "$option_enum"
+                        set option_value_choise "\${$placeholder_value_index|"(string escape -- "$option_enum")"|}"
+                    else if test -n "$option_range"
+                        set --local start (range_start "$option_range")
+                        set --local end (range_end "$option_range")
+                        set --local item_count (math "$end" - "$start" + 1)
+
+                        if test "$item_count" -le "$arghandle_range_values_max_count"
+                            set --local items (seq "$start" "$end" | string join ,)
+                            set option_value_choise "\${$placeholder_value_index|$items|}"
+                        end
+                    end
 
                     set body "$body $option_variant_choise $option_value_choise"
 
