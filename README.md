@@ -159,9 +159,10 @@ matching brackets or before the first colon):
 - `-M`|`--max-args`: Specify a [M]aximum amount of positional arguments.
 - `-c`|`--completion`: Get a [c]ompletion code instead of one for parsing
   arguments, to work must be the first option outside of square brackets.
-- `-s`|`--snippet` Get a [s]nippet code instead of one for parsing arguments,
-- must be one of: `code` (Visual Studio Code) and to work must be the first
+- `-s`|`--snippet`: Get a [s]nippet code instead of one for parsing arguments,
+  must be one of: `code` (Visual Studio Code) and to work must be the first
   option outside of square brackets.
+- `-a`|`--markdown`: Get a m[a]rkdown code instead of one for parsing arguments
 
 ### Option definitions (`{{option_definition ...}}`)
 
@@ -196,21 +197,29 @@ matching brackets or after the first colon):
 - `-v`|`--validator`: Specify a value [v]alidator of an option as a call to a
 - function.
 - `-d`|`--default`: Specify a [d]efault value of an option.
+- `-a`|`--no-default-assignment`: Specify whether a default value of an option
+  should not be [a]ssigned when it's not passed
+
+Dependencies:
+
+- `-t`|`--type` can't be used along with one of the following options as
+  these options allow infer option type and therefor `-t`|`--type` becomes
+  redundant:
+  - `-R`|`--range`
+  - `-e`|`--enum`
+  - `-d`|`--default`
+- `-R`|`--range` and `-e`|`--enum` can't be used together.
 
 Notes:
 
+- Integers are not considered as a special case of floats, they are separate
+  types. Don't treat integers as a "subclass" of floats.
 - Ranges can consist of `int`egers or `float`s. They can be opened from just one
-- side like `1..` or `..10` and closed from both `1..10`.
-- Enums can consist of any comma-separated values. If all values have one type,
-- then it's the type of the enum. Otherwise, enum considered to contain
-- `str`ings.
-- `-R`|`--range` and `-e`|`--enum` are mutually exclusive.
+  side like `1..` or `..10` and closed from both `1..10`.
+- Enums can consist of any comma-separated values of the same type.
 - `-t`|`--type` is used to just tell valid value type for an option, while
-- `-R`|`--range` and `-e`|`--enum` do more: they restrict value to a certain
-  subset too. By default `-t`|`--type` assumed to be `str` unless explicitly
-  specified or one of the following options are used:
-  - `-R`|`--range` - tells that `-t`|`--type` is implicitly `int` or `float`
-  - `-e`|`--enum` - tells `-t`|`--type` implicitly  
+  `-R`|`--range` and `-e`|`--enum` do more: they restrict value to a certain
+  subset too.
 
 ## Additional functions
 
