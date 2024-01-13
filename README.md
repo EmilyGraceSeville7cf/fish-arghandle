@@ -431,6 +431,16 @@ Configuration is currently done via environment variables whose names start with
   - `arghandle`
   - `arg_parse`
 
+- `arghandle_range_values_max_count`: A maximum amount of `-R`|`--range` items
+  which can be shown in a placeholder. When there are more items available all
+  of them are presented as an option `-d`|`--description` value.  
+  Values:
+  - positive `int`
+
+  Affected functions:
+  - `arghandle`
+  - `arg_snippet`
+
 ## Additional functions
 
 To quicker discover current `arghandle` settings you can use these functions:
